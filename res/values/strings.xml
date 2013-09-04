@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MyExpenses</string>
+    
+    <string name="title_my_expenses">My Expenses</string>
+    <string name="title_new_expenses">New Expenses</string>
+
+    <string name="new_expense">Add new expense</string>
+    <string name="quantity">Quantity</string>
+    <string name="add_new_expense_button_text">Add</string>
+    <string name="add_new_expense_textview_text">How much?</string>
+</resources>
