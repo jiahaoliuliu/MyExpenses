@@ -2,6 +2,8 @@ MyExpenses
 ==========
 
 An application to register the expenses
-It requires the library Action-bar to work:
+It requires the library Action bar sherlock to work:
 
-https://github.com/jiahaoliuliu/android-actionbar
+http://actionbarsherlock.com/
+
+https://github.com/JakeWharton/ActionBarSherlock
