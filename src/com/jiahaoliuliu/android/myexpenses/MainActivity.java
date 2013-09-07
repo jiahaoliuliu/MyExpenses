@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -32,6 +33,8 @@ import android.widget.ListView;
 import android.support.v4.view.GravityCompat;
 
 public class MainActivity extends SherlockFragmentActivity {
+
+	private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
 	// Variables
 	private DrawerLayout mDrawerLayout;
@@ -126,6 +129,24 @@ public class MainActivity extends SherlockFragmentActivity {
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
 		
 		// Layout logic
+		addNewExpenseButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// If the user has not entered any data
+				String quantityString = addNewExpenseEditText.getText().toString();
+				if (quantityString == null || quantityString.equals("")) {
+					Toast.makeText(
+							context,
+							getResources().getString(R.string.error_add_new_expense_empty),
+							Toast.LENGTH_LONG).show();
+					return;
+				}
+
+				Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
+			}
+		});
+		
 		addNewExpenseCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override

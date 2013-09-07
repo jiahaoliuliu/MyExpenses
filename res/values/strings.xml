@@ -11,5 +11,6 @@
 	<string name="add_new_expense_hint">Enter your expense.</string>
 	<string name="add_new_expense_button">Add</string>
 	<string name="add_new_expense_checkbox">Shown at beginning</string>
+	<string name="error_add_new_expense_empty">It seems that you have not entered any quantity. Please, could you check it?</string>
 
 </resources>
