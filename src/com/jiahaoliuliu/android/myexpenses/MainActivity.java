@@ -2,17 +2,25 @@ package com.jiahaoliuliu.android.myexpenses;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.jiahaoliuliu.android.myexpenses.util.Preferences;
+import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
@@ -22,11 +30,20 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	// Variables
 	private DrawerLayout mDrawerLayout;
-	//private ListView mDrawerList;
 	private LinearLayout mDrawerLinearLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
+	private Context context;
+	private Preferences preferences;
+	
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+	
+	
+	// Layouts
+	//  Drawer
+	private EditText addNewExpenseEditText;
+	private Button addNewExpenseButton;
+	private CheckBox addNewExpenseCheckBox;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +52,17 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Get the title
 		mTitle = mDrawerTitle = getTitle();
+		context = this;
+		preferences = new Preferences(context);
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-		
 		mDrawerLinearLayout = (LinearLayout)findViewById(R.id.linearLayoutDrawer);
-		
+
+		addNewExpenseEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseEditText);
+		addNewExpenseButton = (Button)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButton);
+		addNewExpenseCheckBox = (CheckBox)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButtonCheckBox);
+
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 		//mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -71,8 +93,27 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-	}
+		// If it is the first time that the application starts
+		if (!preferences.getBoolean(BooleanId.ALREADY_STARTED)) {
+			preferences.setBoolean(BooleanId.ALREADY_STARTED, true);
+			preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, true);
+		}
 
+		boolean showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
+		if (showAddNewExpenseAtBeginning) {
+			mDrawerLayout.openDrawer(mDrawerLinearLayout);
+		}
+
+		// Draw the layout
+		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
+		addNewExpenseCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, isChecked);
+			}
+		});
+	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
