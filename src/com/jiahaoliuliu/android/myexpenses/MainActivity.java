@@ -8,13 +8,18 @@ import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -38,7 +43,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
 	
-	
+	// For the soft input
+	private InputMethodManager imm;
+
 	// Layouts
 	//  Drawer
 	private EditText addNewExpenseEditText;
@@ -54,6 +61,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		mTitle = mDrawerTitle = getTitle();
 		context = this;
 		preferences = new Preferences(context);
+		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -82,12 +90,22 @@ public class MainActivity extends SherlockFragmentActivity {
 			
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
+				addNewExpenseEditText.clearFocus();
+
+				// Hide soft windows
+				imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
+
 			}
 			
 			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
 				// Set the title on the action when drawer open
 				getSupportActionBar().setTitle(mDrawerTitle);
-				super.onDrawerOpened(drawerView);
+				
+				// Force the keyboard to show on EditText focus
+				// TODO: Show the soft keyboard after onResume
+				addNewExpenseEditText.requestFocus();
+            	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
 		};
 		
@@ -106,6 +124,8 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Draw the layout
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
+		
+		// Layout logic
 		addNewExpenseCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			
 			@Override
