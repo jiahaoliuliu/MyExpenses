@@ -6,5 +6,10 @@
     <string name="drawer_close">Close navigation drawer</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
+	
+	<!-- Add new expense -->
+	<string name="add_new_expense_hint">Enter your expense.</string>
+	<string name="add_new_expense_button">Add</string>
+	<string name="add_new_expense_checkbox">Shown at beginning</string>
 
 </resources>

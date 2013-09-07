@@ -20,6 +20,33 @@
 		android:dividerHeight="0dp"
 		android:background="@color/white"
 		android:orientation="vertical"
-		/>
+		>
+	    <EditText
+	        android:id="@+id/addNewExpenseEditText"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:inputType="numberDecimal"
+	        android:hint="@string/add_new_expense_hint"
+	        android:textColor="@color/black"
+	        />
+	
+	    <Button
+	        android:id="@+id/addNewExpenseButton"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/add_new_expense_button"
+	        android:textColor="@color/black"
+	        />
+	
+        <CheckBox
+	        android:id="@+id/addNewExpenseButtonChecked"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="@color/black"
+	        android:text="@string/add_new_expense_checkbox"
+	        />
+
+		</LinearLayout>
 	
 </android.support.v4.widget.DrawerLayout>
