@@ -64,7 +64,6 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
-	private Double totalQuantity;
 	
 	// For the soft input
 	private InputMethodManager imm;
@@ -84,7 +83,9 @@ public class MainActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.drawer_main);
 
 		// Get the title
-		mTitle = mDrawerTitle = getTitle();
+		mTitle = getTitle();
+		mDrawerTitle = getResources().getString(R.string.add_new_expense_title);
+
 		context = this;
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -127,11 +128,11 @@ public class MainActivity extends SherlockFragmentActivity {
 			
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
+				getSupportActionBar().setTitle(mTitle);
 				addNewExpenseEditText.clearFocus();
 
 				// Hide soft windows
 				imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
-
 			}
 			
 			public void onDrawerOpened(View drawerView) {
@@ -140,7 +141,6 @@ public class MainActivity extends SherlockFragmentActivity {
 				getSupportActionBar().setTitle(mDrawerTitle);
 
 				// Force the keyboard to show on EditText focus
-				// TODO: Show the soft keyboard after onResume
 				addNewExpenseEditText.requestFocus();
             	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 			}
@@ -159,6 +159,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			mDrawerLayout.openDrawer(mDrawerLinearLayout);
 			addNewExpenseEditText.requestFocus();
         	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        	getSupportActionBar().setTitle(mDrawerTitle);
 		}
 
 		// Draw the layout
@@ -241,11 +242,12 @@ public class MainActivity extends SherlockFragmentActivity {
 		mDrawerToggle.onConfigurationChanged(newConfig);
 	}
 	
+	/*
 	@Override
 	public void setTitle(CharSequence title) {
 		mTitle = title;
 		getSupportActionBar().setTitle(mTitle);
-	}
+	}*/
 
 	private GsmCellLocation getCellLocation() {
 		if (telephonyManager.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {

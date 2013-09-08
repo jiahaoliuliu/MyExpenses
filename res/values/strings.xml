@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<string name="app_name">MyExpenses</string>
+	<string name="app_name">My Expenses</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 	<string name="drawer_open">Open navigation drawer</string>
 	<string name="drawer_close">Close navigation drawer</string>
 	
 	<!-- Add new expense -->
-	<string name="add_new_expense_hint">Enter a new expense.</string>
+	<string name="add_new_expense_title">Add a new expense</string>
+	<string name="add_new_expense_hint">Add a new expense.</string>
 	<string name="add_new_expense_button">Add</string>
 	<string name="add_new_expense_checkbox">Shown at beginning</string>
 	<string name="add_new_expense_correctly">New expense added correctly</string>
