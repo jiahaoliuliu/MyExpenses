@@ -138,7 +138,7 @@ public class MainActivity extends SherlockFragmentActivity {
 				super.onDrawerOpened(drawerView);
 				// Set the title on the action when drawer open
 				getSupportActionBar().setTitle(mDrawerTitle);
-				
+
 				// Force the keyboard to show on EditText focus
 				// TODO: Show the soft keyboard after onResume
 				addNewExpenseEditText.requestFocus();
@@ -157,6 +157,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		boolean showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		if (showAddNewExpenseAtBeginning) {
 			mDrawerLayout.openDrawer(mDrawerLinearLayout);
+			addNewExpenseEditText.requestFocus();
+        	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 		}
 
 		// Draw the layout
