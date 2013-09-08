@@ -99,6 +99,10 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
+		
+		View listHeaderView = getLayoutInflater().inflate(R.layout.list_header_layout, null);
+		totalExpenseTV = (TextView)listHeaderView.findViewById(R.id.totalExpenseQuantityTextView);
+		contentListView.addHeaderView(listHeaderView, null, false);
 
 		addNewExpenseEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseEditText);
 		addNewExpenseButton = (Button)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButton);
