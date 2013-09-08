@@ -22,11 +22,13 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,6 +60,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private TextView totalExpenseTV;
 	private ListView contentListView;
+	private ContentListAdapter contentListAdapter;
 
 	private Context context;
 	private Preferences preferences;
@@ -111,7 +114,6 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-		//mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -165,9 +167,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Draw the layout
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
 		totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
-		final ContentListAdapter contentListAdapter = new ContentListAdapter(context,
-				R.layout.date_row_layout,
-				expenseList);
+		contentListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
 	    contentListView.setAdapter(contentListAdapter);
 
 		// Layout logic
@@ -175,35 +175,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			
 			@Override
 			public void onClick(View v) {
-				// If the user has not entered any data
-				String quantityString = addNewExpenseEditText.getText().toString();
-				if (quantityString == null || quantityString.equals("")) {
-					Toast.makeText(
-							context,
-							getResources().getString(R.string.error_add_new_expense_empty),
-							Toast.LENGTH_LONG).show();
-					return;
-				}
-
-				Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
-				Expense expense = new Expense();
-				expense.setDate(new Date());
-				expense.setLocation(getCellLocation());
-				expense.setQuantity(Double.valueOf(quantityString));
-				expenseList.add(expense);
-				
-				// Update the layout of the main screen
-				totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
-
-				// Clear the edit text
-				addNewExpenseEditText.setText("");
-				contentListAdapter.notifyDataSetChanged();
-
-				Toast.makeText(
-						context,
-						getResources().getString(R.string.add_new_expense_correctly),
-						Toast.LENGTH_LONG
-						).show();
+				addNewExpense();
 			}
 		});
 		
@@ -212,6 +184,17 @@ public class MainActivity extends SherlockFragmentActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, isChecked);
+			}
+		});
+
+		addNewExpenseEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_DONE) {
+					addNewExpense();
+					return true;
+				}
+				return false;
 			}
 		});
 	}
@@ -302,4 +285,35 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 	}
 
+	private void addNewExpense() {
+		// If the user has not entered any data
+		String quantityString = addNewExpenseEditText.getText().toString();
+		if (quantityString == null || quantityString.equals("")) {
+			Toast.makeText(
+					context,
+					getResources().getString(R.string.error_add_new_expense_empty),
+					Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
+		Expense expense = new Expense();
+		expense.setDate(new Date());
+		expense.setLocation(getCellLocation());
+		expense.setQuantity(Double.valueOf(quantityString));
+		expenseList.add(expense);
+		
+		// Update the layout of the main screen
+		totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
+
+		// Clear the edit text
+		addNewExpenseEditText.setText("");
+		contentListAdapter.notifyDataSetChanged();
+
+		Toast.makeText(
+				context,
+				getResources().getString(R.string.add_new_expense_correctly),
+				Toast.LENGTH_LONG
+				).show();
+	}
 }

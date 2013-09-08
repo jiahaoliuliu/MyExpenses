@@ -38,6 +38,8 @@
 	        android:inputType="numberDecimal"
 	        android:hint="@string/add_new_expense_hint"
 	        android:textColor="@color/black"
+	        android:imeOptions="actionDone"
+            android:singleLine="true"
 	        />
 	
 	    <Button
