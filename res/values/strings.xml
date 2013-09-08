@@ -8,9 +8,13 @@
 	<string name="drawer_close">Close navigation drawer</string>
 	
 	<!-- Add new expense -->
-	<string name="add_new_expense_hint">Enter your expense.</string>
+	<string name="add_new_expense_hint">Enter a new expense.</string>
 	<string name="add_new_expense_button">Add</string>
 	<string name="add_new_expense_checkbox">Shown at beginning</string>
+	<string name="add_new_expense_correctly">New expense added correctly</string>
+	
 	<string name="error_add_new_expense_empty">It seems that you have not entered any quantity. Please, could you check it?</string>
 
+	<!-- Main activity -->
+	<string name="total_expense">Total</string>
 </resources>

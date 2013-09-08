@@ -1,7 +1,13 @@
 package com.jiahaoliuliu.android.myexpenses;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 
@@ -16,14 +22,20 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
@@ -31,6 +43,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import android.support.v4.view.GravityCompat;
+import android.telephony.CellLocation;
+import android.telephony.TelephonyManager;
+import android.telephony.gsm.GsmCellLocation;
 
 public class MainActivity extends SherlockFragmentActivity {
 
@@ -40,14 +55,22 @@ public class MainActivity extends SherlockFragmentActivity {
 	private DrawerLayout mDrawerLayout;
 	private LinearLayout mDrawerLinearLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
+	
+	private TextView totalExpenseTV;
+	private ListView contentListView;
+
 	private Context context;
 	private Preferences preferences;
 	
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+	private Double totalQuantity;
 	
 	// For the soft input
 	private InputMethodManager imm;
+	private TelephonyManager telephonyManager;
+
+	private List<Expense> expenseList;
 
 	// Layouts
 	//  Drawer
@@ -65,10 +88,17 @@ public class MainActivity extends SherlockFragmentActivity {
 		context = this;
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+
+		// Create the empty array
+		expenseList = new ArrayList<Expense>();
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mDrawerLinearLayout = (LinearLayout)findViewById(R.id.linearLayoutDrawer);
+
+		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
+		contentListView = (ListView)findViewById(R.id.contentListView);
 
 		addNewExpenseEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseEditText);
 		addNewExpenseButton = (Button)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButton);
@@ -81,7 +111,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		// ActionBarDrawerToggle ties together the proper interactions
 		// between the sliding drawer and the action bar app icon
 		mDrawerToggle = new ActionBarDrawerToggle(
@@ -127,7 +157,12 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Draw the layout
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
-		
+		totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
+		final ContentListAdapter contentListAdapter = new ContentListAdapter(context,
+				R.layout.date_row_layout,
+				expenseList);
+	    contentListView.setAdapter(contentListAdapter);
+
 		// Layout logic
 		addNewExpenseButton.setOnClickListener(new View.OnClickListener() {
 			
@@ -144,6 +179,24 @@ public class MainActivity extends SherlockFragmentActivity {
 				}
 
 				Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
+				Expense expense = new Expense();
+				expense.setDate(new Date());
+				expense.setLocation(getCellLocation());
+				expense.setQuantity(Double.valueOf(quantityString));
+				expenseList.add(expense);
+				
+				// Update the layout of the main screen
+				totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
+
+				// Clear the edit text
+				addNewExpenseEditText.setText("");
+				contentListAdapter.notifyDataSetChanged();
+
+				Toast.makeText(
+						context,
+						getResources().getString(R.string.add_new_expense_correctly),
+						Toast.LENGTH_LONG
+						).show();
 			}
 		});
 		
@@ -168,17 +221,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		return super.onOptionsItemSelected(item);
 	}
-	
-	private class DrawerItemClickListener implements ListView.OnItemClickListener {
 
-		@Override
-		public void onItemClick(AdapterView<?> parent, View view, int position,
-				long id) {
-			//
-		}
-	}
-
-	
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
@@ -196,6 +239,59 @@ public class MainActivity extends SherlockFragmentActivity {
 	public void setTitle(CharSequence title) {
 		mTitle = title;
 		getSupportActionBar().setTitle(mTitle);
+	}
+
+	private GsmCellLocation getCellLocation() {
+		if (telephonyManager.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {
+		    final GsmCellLocation location = (GsmCellLocation) telephonyManager.getCellLocation();
+		    return location;
+		} else {
+			Log.e(LOG_TAG, "The phone type is not gsm");
+			return null;
+		}
+	}
+	
+	private double calculateTotalExpense() {
+		double result = 0.0;
+		for (Expense expense: expenseList) {
+			result += expense.getQuantity();
+		}
+
+		return result;
+	}
+	
+	private class ContentListAdapter extends ArrayAdapter<String> {
+		
+		private Context context;
+		private List<Expense> expenseList;
+		private SimpleDateFormat format = new SimpleDateFormat("y - M - d");
+
+		public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
+			super(context, resource);
+			this.context = context;
+			this.expenseList = expenseList;
+		}
+		
+		@Override
+		public int getCount() {
+			return this.expenseList.size();
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View rowView = inflater.inflate(R.layout.date_row_layout, parent, false);
+
+			TextView expenseDateTV = (TextView)rowView.findViewById(R.id.expenseDateTextView);
+			
+			expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
+
+			TextView expenseQuantityTV = (TextView)rowView.findViewById(R.id.expenseQuantityTextView);
+			expenseQuantityTV.setText(String.valueOf(expenseList.get(position).getQuantity()));
+
+			return rowView;
+		}
+		
 	}
 
 }
