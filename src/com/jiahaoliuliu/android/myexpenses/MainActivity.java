@@ -268,7 +268,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		private Context context;
 		private List<Expense> expenseList;
-		private SimpleDateFormat format = new SimpleDateFormat("y - M - d");
+		private SimpleDateFormat format = new SimpleDateFormat("y-M-d HH:mm");
 
 		public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
 			super(context, resource);
