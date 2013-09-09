@@ -6,6 +6,8 @@ import android.telephony.gsm.GsmCellLocation;
 
 public class Expense {
 
+	// The row id in the database
+	private int _id = 0;
 	// The date when the expense has been recorded
 	private Date date;
 	// The information about the cell.
@@ -23,6 +25,24 @@ public class Expense {
 		this.date = date;
 		this.location = location;
 		this.quantity = quantity;
+	}
+	
+	public Expense(int _id, Date date, int locationCellId, int locationLAC, double quantity) {
+		super();
+		this._id = _id;
+		this.date = date;
+		GsmCellLocation location = new GsmCellLocation();
+		location.setLacAndCid(locationLAC, locationCellId);
+		this.location = location;
+		this.quantity = quantity;
+	}
+
+	public int getId() {
+		return _id;
+	}
+
+	public void setId(int _id) {
+		this._id = _id;
 	}
 
 	public Date getDate() {
@@ -53,6 +73,7 @@ public class Expense {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + _id;
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result
 				+ ((location == null) ? 0 : location.hashCode());
@@ -71,6 +92,8 @@ public class Expense {
 		if (getClass() != obj.getClass())
 			return false;
 		Expense other = (Expense) obj;
+		if (_id != other._id)
+			return false;
 		if (date == null) {
 			if (other.date != null)
 				return false;
@@ -89,9 +112,7 @@ public class Expense {
 
 	@Override
 	public String toString() {
-		return "Expense [" +
-				"date=" + date +
-				", location=" + "CellId: " + location.getCid() + ",LAC: " + location.getLac() +
-				", quantity=" + quantity + "]";
+		return "Expense [_id=" + _id + ", date=" + date + ", location="
+				+ location + ", quantity=" + quantity + "]";
 	}
 }
