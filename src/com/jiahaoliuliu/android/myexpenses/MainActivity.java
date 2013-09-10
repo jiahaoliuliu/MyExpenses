@@ -176,7 +176,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Draw the layout
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
-		totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
+		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
 		contentListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
 	    contentListView.setAdapter(contentListAdapter);
 
@@ -288,7 +288,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
 
 			TextView expenseQuantityTV = (TextView)rowView.findViewById(R.id.expenseQuantityTextView);
-			expenseQuantityTV.setText(String.valueOf(expenseList.get(position).getQuantity()));
+			expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
 
 			return rowView;
 		}
@@ -318,7 +318,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		expenseList.add(expense);
 		
 		// Update the layout of the main screen
-		totalExpenseTV.setText(String.valueOf(calculateTotalExpense()));
+		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
 
 		// Clear the edit text
 		addNewExpenseEditText.setText("");
