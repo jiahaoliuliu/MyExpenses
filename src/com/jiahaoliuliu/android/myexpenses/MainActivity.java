@@ -8,6 +8,7 @@ import java.util.List;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
+import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 
@@ -80,6 +81,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private Button addNewExpenseButton;
 	private CheckBox addNewExpenseCheckBox;
 	
+	// Database
+	private ExpenseDBAdapter expenseDBAdapter;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -96,6 +100,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Create the empty array
 		expenseList = new ArrayList<Expense>();
+		expenseDBAdapter = new ExpenseDBAdapter(context);
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
@@ -310,10 +315,20 @@ public class MainActivity extends SherlockFragmentActivity {
 		addNewExpenseEditText.setText("");
 		contentListAdapter.notifyDataSetChanged();
 
+		expenseDBAdapter.insertNewExpense(expense);
+
 		Toast.makeText(
 				context,
 				getResources().getString(R.string.add_new_expense_correctly),
 				Toast.LENGTH_LONG
 				).show();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		// Close the database on pause
+		expenseDBAdapter.closeDatabase();
 	}
 }

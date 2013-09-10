@@ -65,10 +65,10 @@ public class ExpenseDBAdapter {
 	 * Register a new expense inside of the database.
 	 */
 	public Expense insertNewExpense (Expense expense) {
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-		
+
 		ContentValues expenseValues = createExpenseValues(expense);
 		int rowId =  (int)database.insert(DATABASE_TABLE, null, expenseValues);
 		expense.setId(rowId);
@@ -76,12 +76,12 @@ public class ExpenseDBAdapter {
 	}
 	
 	public int updateExpense (Expense expense) {
-		int result = 0;
-		
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-		
+
+		int result = 0;
+
 		ContentValues updateValues = createExpenseValues(expense);
 		if (database.update(DATABASE_TABLE, updateValues, KEY_ROW_ID + "=" + expense.getId(), null) > 0) {
 			result = 0;
@@ -94,12 +94,12 @@ public class ExpenseDBAdapter {
 	}
 
 	public int deleteExpenseByRowId (int row_id) {
-		int result = 0;
-		
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-		
+
+		int result = 0;
+
 		if (database.delete(DATABASE_TABLE, KEY_ROW_ID + "=" + row_id, null) >0) {
 			result = 0;
 		} else {
@@ -109,12 +109,12 @@ public class ExpenseDBAdapter {
 	}
 	
 	public int deleteAll() {
-		int result = 0;
-		
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-		
+
+		int result = 0;
+
 		if (database.delete(DATABASE_TABLE, "1" , null) >0) {
 			result = 0;
 		} else {
@@ -126,11 +126,12 @@ public class ExpenseDBAdapter {
 	
 	//Return a Energy consumption. If there is any error, return null
 	public Expense getEnergyConsumptionByRowId (int row_id) throws SQLException  {
-		Expense result = null;
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-		
+
+		Expense result = null;
+
 		Cursor mCursor = 
 				database.query(DATABASE_TABLE,
 							   new String[] {KEY_ROW_ID,
@@ -153,12 +154,12 @@ public class ExpenseDBAdapter {
 	 * Returns all the expenses from the database
 	 */
 	public List<Expense> getAllExpenses() {
-		List<Expense> allEnergyConsumption = new ArrayList<Expense>();
-
-		if (!database.isOpen()) {
+		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-				
+
+		List<Expense> allEnergyConsumption = new ArrayList<Expense>();
+
 		Cursor mCursor = 
 				database.query(DATABASE_TABLE,
 						   new String[] {KEY_ROW_ID,
