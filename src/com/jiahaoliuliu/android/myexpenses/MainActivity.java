@@ -98,9 +98,10 @@ public class MainActivity extends SherlockFragmentActivity {
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-		// Create the empty array
-		expenseList = new ArrayList<Expense>();
+		// Create the variables
 		expenseDBAdapter = new ExpenseDBAdapter(context);
+		
+		expenseList = expenseDBAdapter.getAllExpenses();
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
