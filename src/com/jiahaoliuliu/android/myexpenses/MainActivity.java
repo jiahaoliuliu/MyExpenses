@@ -1,5 +1,6 @@
 package com.jiahaoliuliu.android.myexpenses;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -83,6 +84,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
+	
+	// Set the number of decimals in the editText
+	private DecimalFormat dec = new DecimalFormat("#.00");
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -303,10 +307,14 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 
 		Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
+		// Format the quantity.
+		String quantityStringFormatted = dec.format(Double.valueOf(quantityString)).replace(",", ".");
+		
+		Log.v (LOG_TAG, "Quantity after format: " + quantityStringFormatted);
 		Expense expense = new Expense();
 		expense.setDate(new Date());
 		expense.setLocation(getCellLocation());
-		expense.setQuantity(Double.valueOf(quantityString));
+		expense.setQuantity(Double.valueOf(quantityStringFormatted));
 		expenseList.add(expense);
 		
 		// Update the layout of the main screen
