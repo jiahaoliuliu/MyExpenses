@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
@@ -26,7 +27,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,9 +55,12 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
+	private static final int MENU_ITEM_RIGHT_LIST_ID = 10000;
+
 	// Variables
 	private DrawerLayout mDrawerLayout;
 	private LinearLayout mLeftLinearDrawer;
+	private LinearLayout mRightLinearDrawer;
 	private ActionBarDrawerToggle mDrawerToggle;
 	
 	private TextView totalExpenseTV;
@@ -67,8 +70,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private Context context;
 	private Preferences preferences;
 	
-	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
+	private CharSequence mLeftDrawerTitle;
+	private CharSequence mRightDrawerTitle;
 
 	private boolean showAddNewExpenseAtBeginning;
 	// For the soft input
@@ -97,7 +101,8 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Get the title
 		mTitle = getTitle();
-		mDrawerTitle = getResources().getString(R.string.add_new_expense_title);
+		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
+		mRightDrawerTitle = getResources().getString(R.string.edit_expense_title);
 
 		context = this;
 		preferences = new Preferences(context);
@@ -112,6 +117,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
+		mRightLinearDrawer = (LinearLayout)findViewById(R.id.rightLinearDrawer);
 
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
@@ -144,20 +150,31 @@ public class MainActivity extends SherlockFragmentActivity {
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
 				getSupportActionBar().setTitle(mTitle);
-				addNewExpenseEditText.clearFocus();
-
-				// Hide soft windows
-				imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
+				if (view.equals(mLeftLinearDrawer)) {
+					addNewExpenseEditText.clearFocus();
+	
+					// Hide soft windows
+					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
+				// Right drawer
+				} else {
+					
+				}
 			}
 			
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
-				// Set the title on the action when drawer open
-				getSupportActionBar().setTitle(mDrawerTitle);
-
-				// Force the keyboard to show on EditText focus
-				addNewExpenseEditText.requestFocus();
-            	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+				if (drawerView.equals(mLeftLinearDrawer)) {
+					// Set the title on the action when drawer open
+					getSupportActionBar().setTitle(mLeftDrawerTitle);
+	
+					// Force the keyboard to show on EditText focus
+					addNewExpenseEditText.requestFocus();
+	            	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+	            // Right drawer
+				} else {
+					// Set the title on the action when drawer open
+					getSupportActionBar().setTitle(mRightDrawerTitle);
+				}
 			}
 		};
 		
@@ -217,13 +234,34 @@ public class MainActivity extends SherlockFragmentActivity {
 		});
 	}
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
+        		.NONE, context.getResources().getString(R.string.action_bar_name_edit))
+        	.setIcon(R.drawable.ic_drawer)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        return true;
+    }
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
 			if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
 				mDrawerLayout.closeDrawer(mLeftLinearDrawer);
 			} else {
+				if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+					mDrawerLayout.closeDrawer(mRightLinearDrawer);
+				}
 				mDrawerLayout.openDrawer(mLeftLinearDrawer);
+			}
+		} else if (item.getItemId() == MENU_ITEM_RIGHT_LIST_ID) {
+			if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+				mDrawerLayout.closeDrawer(mRightLinearDrawer);
+			} else {
+				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
+					mDrawerLayout.closeDrawer(mLeftLinearDrawer);
+				}
+				mDrawerLayout.openDrawer(mRightLinearDrawer);
 			}
 		}
 		
@@ -374,7 +412,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		//showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		if (showAddNewExpenseAtBeginning) {
 			mDrawerLayout.openDrawer(mLeftLinearDrawer);
-        	getSupportActionBar().setTitle(mDrawerTitle);
+        	getSupportActionBar().setTitle(mLeftDrawerTitle);
 			addNewExpenseEditText.requestFocus();
 			addNewExpenseEditText.postDelayed(new Runnable() {
 		        @Override
