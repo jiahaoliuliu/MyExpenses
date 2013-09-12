@@ -14,17 +14,26 @@
     	android:layout_height="wrap_content"
     	android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+    	android:textSize="@dimen/row_text_size"
         android:text="Date" />
+
+    <TextView
+        android:id="@+id/expenseCommentTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/expenseDateTextView"
+        android:textSize="@dimen/row_subtitle_size"
+        android:text="Comment" />
 
     <TextView
     	android:id="@+id/expenseQuantityTextView"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
     	android:layout_alignParentRight="true"
-    	android:layout_alignParentTop="true"
-    	android:layout_alignBottom="@+id/expenseDateTextView"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-    	android:text="quantity" />
+    	android:text="quantity"
+    	android:textSize="@dimen/row_text_size"
+    	android:layout_centerVertical="true"
+    	/>
 
 </RelativeLayout>

@@ -10,6 +10,7 @@
 	<!-- Add new expense -->
 	<string name="add_new_expense_title">Add a new expense</string>
 	<string name="add_new_expense_hint">Add a new expense.</string>
+	<string name="add_new_expense_comment_hint">Comment</string>
 	<string name="add_new_expense_button">Add</string>
 	<string name="add_new_expense_checkbox">Shown at beginning</string>
 	<string name="add_new_expense_correctly">New expense added correctly</string>

@@ -79,6 +79,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	// Layouts
 	//  Drawer
 	private EditText addNewExpenseEditText;
+	private EditText addNewExpenseCommentEditText;
 	private Button addNewExpenseButton;
 	private CheckBox addNewExpenseCheckBox;
 	
@@ -86,7 +87,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ExpenseDBAdapter expenseDBAdapter;
 	
 	// Set the number of decimals in the editText
-	private DecimalFormat dec = new DecimalFormat("#.00");
+	private DecimalFormat dec = new DecimalFormat("0.00");
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -119,6 +120,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		contentListView.addHeaderView(listHeaderView, null, false);
 
 		addNewExpenseEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseEditText);
+		addNewExpenseCommentEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseCommentEditText);
 		addNewExpenseButton = (Button)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButton);
 		addNewExpenseCheckBox = (CheckBox)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButtonCheckBox);
 
@@ -198,6 +200,17 @@ public class MainActivity extends SherlockFragmentActivity {
 		});
 
 		addNewExpenseEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_ACTION_NEXT) {
+					addNewExpenseCommentEditText.requestFocus();
+					return true;
+				}
+				return false;
+			}
+		});
+		
+		addNewExpenseCommentEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -284,8 +297,10 @@ public class MainActivity extends SherlockFragmentActivity {
 			View rowView = inflater.inflate(R.layout.date_row_layout, parent, false);
 
 			TextView expenseDateTV = (TextView)rowView.findViewById(R.id.expenseDateTextView);
-			
 			expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
+			
+			TextView expenseCommentTV = (TextView)rowView.findViewById(R.id.expenseCommentTextView);
+			expenseCommentTV.setText(expenseList.get(position).getComment());
 
 			TextView expenseQuantityTV = (TextView)rowView.findViewById(R.id.expenseQuantityTextView);
 			expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
@@ -313,6 +328,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		Log.v (LOG_TAG, "Quantity after format: " + quantityStringFormatted);
 		Expense expense = new Expense();
 		expense.setDate(new Date());
+		expense.setComment(addNewExpenseCommentEditText.getText().toString());
 		expense.setLocation(getCellLocation());
 		expense.setQuantity(Double.valueOf(quantityStringFormatted));
 		expenseList.add(expense);
@@ -322,6 +338,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Clear the edit text
 		addNewExpenseEditText.setText("");
+		addNewExpenseCommentEditText.setText("");
 		contentListAdapter.notifyDataSetChanged();
 
 		expenseDBAdapter.insertNewExpense(expense);

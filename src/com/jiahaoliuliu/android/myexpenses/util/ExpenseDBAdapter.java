@@ -26,13 +26,14 @@ public class ExpenseDBAdapter {
 	
 	private static final int DATABASE_VERSION = 1;
 
-	private static final String DATABASE_TABLE = "expense";
+	private static final String DATABASE_TABLE = "expenses";
 	
 	private static final SimpleDateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			
 	//Database fields
 	private static final String KEY_ROW_ID = "_id";
 	private static final String KEY_DATE_ID = "date_id";
+	private static final String KEY_COMMENT_ID = "comment_id";
 	private static final String KEY_LOCATION_CELL_ID = "cell_id";
 	private static final String KEY_LOCATION_LOCAL_AREA_CODE = "local_are_code";
 	private static final String KEY_QUANTITY = "quantity";
@@ -136,6 +137,7 @@ public class ExpenseDBAdapter {
 				database.query(DATABASE_TABLE,
 							   new String[] {KEY_ROW_ID,
 											 KEY_DATE_ID,
+											 KEY_COMMENT_ID,
 											 KEY_LOCATION_CELL_ID,
 											 KEY_LOCATION_LOCAL_AREA_CODE,
 											 KEY_QUANTITY
@@ -164,6 +166,7 @@ public class ExpenseDBAdapter {
 				database.query(DATABASE_TABLE,
 						   new String[] {KEY_ROW_ID,
 										 KEY_DATE_ID,
+										 KEY_COMMENT_ID,
 										 KEY_LOCATION_CELL_ID,
 										 KEY_LOCATION_LOCAL_AREA_CODE,
 										 KEY_QUANTITY
@@ -188,6 +191,7 @@ public class ExpenseDBAdapter {
 				"create table if not exists " + DATABASE_TABLE + " ( " +
 										   KEY_ROW_ID + " integer primary key autoincrement, " +
 										   KEY_DATE_ID + " text not null, " +
+										   KEY_COMMENT_ID + " text, " +
 										   KEY_LOCATION_CELL_ID + " integer not null default 0, " +
 										   KEY_LOCATION_LOCAL_AREA_CODE + " integer not null default 0, " +
 										   KEY_QUANTITY + " real not null);";
@@ -230,6 +234,10 @@ public class ExpenseDBAdapter {
 		String dateString = iso8601Format.format(expense.getDate());
 		expenseValues.put(KEY_DATE_ID, dateString);
 
+		// Comment
+		String comment = expense.getComment();
+		expenseValues.put(KEY_COMMENT_ID, comment);
+
 		// Location
 		int locationCellId = expense.getLocation().getCid();
 		expenseValues.put(KEY_LOCATION_CELL_ID, locationCellId);
@@ -268,6 +276,9 @@ public class ExpenseDBAdapter {
 				return null;
 			}
 
+			// Comment
+			String comment = mCursor.getString(mCursor.getColumnIndex(KEY_COMMENT_ID));
+
 			// Location
 			int locationCellId = mCursor.getInt(mCursor.getColumnIndex(KEY_LOCATION_CELL_ID));
 
@@ -275,7 +286,7 @@ public class ExpenseDBAdapter {
 			
 			double quantity = mCursor.getDouble(mCursor.getColumnIndex(KEY_QUANTITY));
 
-			result = new Expense(row_id, date, locationCellId, locationLAC, quantity);
+			result = new Expense(row_id, date, comment, locationCellId, locationLAC, quantity);
 		}
 		
 		return result;
