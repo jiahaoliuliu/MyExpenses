@@ -57,7 +57,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	// Variables
 	private DrawerLayout mDrawerLayout;
-	private LinearLayout mDrawerLinearLayout;
+	private LinearLayout mLeftLinearDrawer;
 	private ActionBarDrawerToggle mDrawerToggle;
 	
 	private TextView totalExpenseTV;
@@ -69,7 +69,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
-	
+
+	private boolean showAddNewExpenseAtBeginning;
 	// For the soft input
 	private InputMethodManager imm;
 	private TelephonyManager telephonyManager;
@@ -110,7 +111,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
-		mDrawerLinearLayout = (LinearLayout)findViewById(R.id.linearLayoutDrawer);
+		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
 
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
@@ -119,10 +120,10 @@ public class MainActivity extends SherlockFragmentActivity {
 		totalExpenseTV = (TextView)listHeaderView.findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView.addHeaderView(listHeaderView, null, false);
 
-		addNewExpenseEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseEditText);
-		addNewExpenseCommentEditText = (EditText)mDrawerLinearLayout.findViewById(R.id.addNewExpenseCommentEditText);
-		addNewExpenseButton = (Button)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButton);
-		addNewExpenseCheckBox = (CheckBox)mDrawerLinearLayout.findViewById(R.id.addNewExpenseButtonCheckBox);
+		addNewExpenseEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseEditText);
+		addNewExpenseCommentEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseCommentEditText);
+		addNewExpenseButton = (Button)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButton);
+		addNewExpenseCheckBox = (CheckBox)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButtonCheckBox);
 
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -168,15 +169,8 @@ public class MainActivity extends SherlockFragmentActivity {
 			preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, true);
 		}
 
-		boolean showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
-		if (showAddNewExpenseAtBeginning) {
-			mDrawerLayout.openDrawer(mDrawerLinearLayout);
-			addNewExpenseEditText.requestFocus();
-        	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-        	getSupportActionBar().setTitle(mDrawerTitle);
-		}
-
 		// Draw the layout
+		showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
 		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
 		contentListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
@@ -195,7 +189,8 @@ public class MainActivity extends SherlockFragmentActivity {
 			
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, isChecked);
+				showAddNewExpenseAtBeginning = isChecked;
+				preferences.setBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING, showAddNewExpenseAtBeginning);
 			}
 		});
 
@@ -225,10 +220,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == android.R.id.home) {
-			if (mDrawerLayout.isDrawerOpen(mDrawerLinearLayout)) {
-				mDrawerLayout.closeDrawer(mDrawerLinearLayout);
+			if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
+				mDrawerLayout.closeDrawer(mLeftLinearDrawer);
 			} else {
-				mDrawerLayout.openDrawer(mDrawerLinearLayout);
+				mDrawerLayout.openDrawer(mLeftLinearDrawer);
 			}
 		}
 		
@@ -370,5 +365,17 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		// Close the database on pause
 		expenseDBAdapter.closeDatabase();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		//showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
+		if (showAddNewExpenseAtBeginning) {
+			mDrawerLayout.openDrawer(mLeftLinearDrawer);
+			addNewExpenseEditText.requestFocus();
+        	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        	getSupportActionBar().setTitle(mDrawerTitle);
+		}
 	}
 }

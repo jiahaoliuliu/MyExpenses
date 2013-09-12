@@ -20,8 +20,9 @@
 	     	/>
 	</FrameLayout>
 
+	<!-- Left drawer -->
 	<LinearLayout
-		android:id="@+id/linearLayoutDrawer"
+		android:id="@+id/leftLinearDrawer"
 		android:layout_width="300dp"
 		android:layout_height="match_parent"
 		android:layout_gravity="start"
@@ -75,5 +76,4 @@
 	        />
 
 		</LinearLayout>
-	
 </android.support.v4.widget.DrawerLayout>
