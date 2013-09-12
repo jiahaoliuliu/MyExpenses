@@ -362,9 +362,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
 		// Close the database on pause
 		expenseDBAdapter.closeDatabase();
+		// Hide soft windows if it is opened
+		imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
 	}
 	
 	@Override
@@ -373,9 +374,15 @@ public class MainActivity extends SherlockFragmentActivity {
 		//showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		if (showAddNewExpenseAtBeginning) {
 			mDrawerLayout.openDrawer(mLeftLinearDrawer);
-			addNewExpenseEditText.requestFocus();
-        	imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
         	getSupportActionBar().setTitle(mDrawerTitle);
+			addNewExpenseEditText.requestFocus();
+			addNewExpenseEditText.postDelayed(new Runnable() {
+		        @Override
+		        public void run() {
+		            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		            imm.showSoftInput(addNewExpenseEditText, InputMethodManager.SHOW_FORCED);
+		        }   
+		    }, 100);
 		}
 	}
 }
