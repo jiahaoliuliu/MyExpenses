@@ -3,15 +3,16 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/linearLayoutDrawer"
 	android:layout_width="fill_parent"
-	android:layout_height="match_parent"
+	android:layout_height="wrap_content"
 	android:paddingLeft="@dimen/activity_horizontal_margin"
 	android:paddingRight="@dimen/activity_horizontal_margin"
 	>
 
     <TextView
     	android:id="@+id/expenseDateTextView"
-    	android:layout_width="wrap_content"
+    	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/expenseQuantityTextView"
     	android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
     	android:textSize="@dimen/row_text_size"
@@ -19,12 +20,14 @@
 
     <TextView
         android:id="@+id/expenseCommentTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignLeft="@+id/expenseDateTextView"
         android:layout_below="@+id/expenseDateTextView"
         android:textSize="@dimen/row_subtitle_size"
-        android:text="Comment" />
+        android:text="This is a very very long comment"
+        android:layout_toLeftOf="@+id/expenseQuantityTextView"
+        />
 
     <TextView
     	android:id="@+id/expenseQuantityTextView"
