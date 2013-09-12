@@ -279,6 +279,13 @@ public class MainActivity extends SherlockFragmentActivity {
 		private Context context;
 		private List<Expense> expenseList;
 		private SimpleDateFormat format = new SimpleDateFormat("y-M-d HH:mm");
+		private ViewHolder viewHolder;
+
+		class ViewHolder {
+			TextView expenseDateTV;
+			TextView expenseCommentTV;
+			TextView expenseQuantityTV;
+		}
 
 		public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
 			super(context, resource);
@@ -293,19 +300,23 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = inflater.inflate(R.layout.date_row_layout, parent, false);
+			if (convertView == null) {
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
+				viewHolder = new ViewHolder();
+				viewHolder.expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
+				viewHolder.expenseCommentTV = (TextView)convertView.findViewById(R.id.expenseCommentTextView);
+				viewHolder.expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
+				convertView.setTag(viewHolder);
+			} else {
+				viewHolder = (ViewHolder)convertView.getTag();
+			}
 
-			TextView expenseDateTV = (TextView)rowView.findViewById(R.id.expenseDateTextView);
-			expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
-			
-			TextView expenseCommentTV = (TextView)rowView.findViewById(R.id.expenseCommentTextView);
-			expenseCommentTV.setText(expenseList.get(position).getComment());
+			viewHolder.expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
+			viewHolder.expenseCommentTV.setText(expenseList.get(position).getComment());
+			viewHolder.expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
 
-			TextView expenseQuantityTV = (TextView)rowView.findViewById(R.id.expenseQuantityTextView);
-			expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
-
-			return rowView;
+			return convertView;
 		}
 		
 	}
@@ -339,6 +350,9 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Clear the edit text
 		addNewExpenseEditText.setText("");
 		addNewExpenseCommentEditText.setText("");
+		// Return the focus to expense edit text
+		addNewExpenseEditText.requestFocus();
+
 		contentListAdapter.notifyDataSetChanged();
 
 		expenseDBAdapter.insertNewExpense(expense);
