@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -247,6 +248,19 @@ public class MainActivity extends SherlockFragmentActivity {
 					return true;
 				}
 				return false;
+			}
+		});
+		
+		contentListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> lparent, View view, int position,
+					long id) {
+				// Open right drawer
+				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
+					mDrawerLayout.closeDrawer(mLeftLinearDrawer);
+				}
+				mDrawerLayout.openDrawer(mRightLinearDrawer);
 			}
 		});
 	}
