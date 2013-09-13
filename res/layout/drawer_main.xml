@@ -75,10 +75,10 @@
             android:textSize="@dimen/drawer_subtitle_size"
 	        />
 
-		</LinearLayout>
+	</LinearLayout>
 		
-	   <!-- Right drawer -->
-       <LinearLayout
+   <!-- Right drawer -->
+   <LinearLayout
         android:id="@+id/rightLinearDrawer"
         android:layout_width="300dp"
         android:layout_height="match_parent"
@@ -87,6 +87,30 @@
         android:dividerHeight="0dp"
         android:background="@color/white"
         android:orientation="vertical"
-        />
-	
+        >
+        <RelativeLayout
+        	android:id="@+id/noExpenseFoundRelativeLayout"
+        	android:layout_width="match_parent"
+        	android:layout_height="match_parent"
+        	android:visibility="gone"
+        	>
+        	<TextView
+        		android:layout_width="wrap_content"
+        		android:layout_height="wrap_content"
+        		android:text="@string/no_expense_found_edit"
+        		android:textSize="@dimen/row_text_size"
+        		android:layout_centerInParent="true"
+        		android:textColor="?android:attr/textColorPrimaryInverseDisableOnly"
+        		android:gravity="center"
+        		/>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/expenseRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+        </RelativeLayout>
+        
+    </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

@@ -39,6 +39,7 @@ import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -61,6 +62,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	private DrawerLayout mDrawerLayout;
 	private LinearLayout mLeftLinearDrawer;
 	private LinearLayout mRightLinearDrawer;
+	private RelativeLayout noExpenseFoundRelativeLayout;
+	private RelativeLayout expenseFoundRelativeLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	
 	private TextView totalExpenseTV;
@@ -109,15 +112,12 @@ public class MainActivity extends SherlockFragmentActivity {
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-		// Create the variables
-		expenseDBAdapter = new ExpenseDBAdapter(context);
-		
-		expenseList = expenseDBAdapter.getAllExpenses();
-
 		// Link the content
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
 		mRightLinearDrawer = (LinearLayout)findViewById(R.id.rightLinearDrawer);
+		noExpenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.noExpenseFoundRelativeLayout);
+		expenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.expenseRelativeLayout);
 
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
@@ -133,6 +133,10 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+		// Create the variables
+		expenseDBAdapter = new ExpenseDBAdapter(context);
+		expenseList = expenseDBAdapter.getAllExpenses();
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -157,7 +161,7 @@ public class MainActivity extends SherlockFragmentActivity {
 					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
 				// Right drawer
 				} else {
-					
+					// Save the new data to shared preferences
 				}
 			}
 			
@@ -174,6 +178,19 @@ public class MainActivity extends SherlockFragmentActivity {
 				} else {
 					// Set the title on the action when drawer open
 					getSupportActionBar().setTitle(mRightDrawerTitle);
+					if (expenseList.isEmpty()) {
+						// Show the no Expense Found layout
+						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
+						expenseFoundRelativeLayout.setVisibility(View.GONE);
+					} else {
+						noExpenseFoundRelativeLayout.setVisibility(View.GONE);
+						expenseFoundRelativeLayout.setVisibility(View.VISIBLE);
+						
+						// Get the data from the preferences
+						// If there is not data, get the data of the last element of the list (the newest)
+						
+						// If the user clicks on the accept, cancel or remove button, remove the data from shared preferences
+					}
 				}
 			}
 		};
