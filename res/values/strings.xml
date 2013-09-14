@@ -18,6 +18,8 @@
 
 	<!-- Edit expense -->
 	<string name="action_bar_name_edit">Edit</string>
+	<string name="action_bar_save">Save</string>
+	<string name="action_bar_cancel">Cancel</string>
 	<string name="edit_expense_title">Edit expense</string>
 	<string name="no_expense_found_edit">The list of expenses is empty. Please, add some expenses to be edited.</string>
     <string name="date_title">Date</string>

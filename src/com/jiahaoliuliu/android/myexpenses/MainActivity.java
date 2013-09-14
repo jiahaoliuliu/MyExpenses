@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
@@ -96,7 +97,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	//  Right Drawer
 	private DatePicker datePicker;
-
+	private ActionMode editActionMode;
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
 	
@@ -170,6 +171,9 @@ public class MainActivity extends SherlockFragmentActivity {
 				// Right drawer
 				} else {
 					// Save the new data to shared preferences
+					if (editActionMode != null) {
+						editActionMode.finish();
+					}
 				}
 			}
 			
@@ -193,7 +197,9 @@ public class MainActivity extends SherlockFragmentActivity {
 					} else {
 						noExpenseFoundRelativeLayout.setVisibility(View.GONE);
 						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
-						
+
+						editActionMode = startActionMode(new EditExpenseActionMode());
+						// Change the action bar menus
 						// Get the data from the preferences
 						// If there is not data, get the data of the last element of the list (the newest)
 						
@@ -434,7 +440,40 @@ public class MainActivity extends SherlockFragmentActivity {
 				Toast.LENGTH_LONG
 				).show();
 	}
-	
+
+	// The action mode shown in the action bar when the user opens the right drawer
+    private final class EditExpenseActionMode implements ActionMode.Callback {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            //Used to put dark icons on light action bar
+            menu.add("Cancel")
+            	.setIcon(R.drawable.ic_cancel)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+            menu.add("Delete")
+            	.setIcon(R.drawable.ic_remove)
+            	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return false;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            Toast.makeText(MainActivity.this, "Got click: " + item, Toast.LENGTH_SHORT).show();
+            mode.finish();
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+        }
+    }
+
+// Life cycle
 	@Override
 	protected void onPause() {
 		super.onPause();
