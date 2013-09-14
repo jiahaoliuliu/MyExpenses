@@ -22,7 +22,7 @@
 	<string name="action_bar_cancel">Cancel</string>
 	<string name="edit_expense_title">Edit expense</string>
 	<string name="no_expense_found_edit">The list of expenses is empty. Please, add some expenses to be edited.</string>
-    <string name="date_title">Date</string>
+    <string name="date_title">Date:</string>
     <string name="time_title">Time:</string>
     <string name="quantity_title">Quantity: </string>
     <string name="comment_title">Comment:</string>

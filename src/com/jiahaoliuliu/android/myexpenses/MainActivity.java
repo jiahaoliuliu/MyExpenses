@@ -3,14 +3,17 @@ package com.jiahaoliuliu.android.myexpenses;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
+import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
@@ -42,6 +45,7 @@ import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.DatePicker.OnDateChangedListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -73,7 +77,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private TextView totalExpenseTV;
 	private ListView contentListView;
+	private int contentPositionSelected = -1;
 	private ContentListAdapter contentListAdapter;
+	private ActionMode editActionMode;
 
 	private Context context;
 	private Preferences preferences;
@@ -97,13 +103,20 @@ public class MainActivity extends SherlockFragmentActivity {
 	private CheckBox addNewExpenseCheckBox;
 	
 	//  Right Drawer
+	private Button dateTitleButton;
+	private Button dateButton;
 	private DatePicker datePicker;
-	private ActionMode editActionMode;
+	private Button timeButton;
+	private EditText quantityET;
+	private EditText commentET;
+	
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
-	
+
 	// Set the number of decimals in the editText
-	private DecimalFormat dec = new DecimalFormat("0.00");
+	public DecimalFormat dec = new DecimalFormat("0.00");
+	// The locale is set as us by default
+	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -124,12 +137,14 @@ public class MainActivity extends SherlockFragmentActivity {
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 		// Link the content
+		//  Layouts
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
 		mRightLinearDrawer = (LinearLayout)findViewById(R.id.rightLinearDrawer);
 		noExpenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.noExpenseFoundRelativeLayout);
 		expenseFoundScrollLayout = (ScrollView)findViewById(R.id.expenseScrollView);
 
+		//  Main layout
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
 		
@@ -137,13 +152,20 @@ public class MainActivity extends SherlockFragmentActivity {
 		totalExpenseTV = (TextView)listHeaderView.findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView.addHeaderView(listHeaderView, null, false);
 
+		//  Left Drawer
 		addNewExpenseEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseEditText);
 		addNewExpenseCommentEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseCommentEditText);
 		addNewExpenseButton = (Button)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButton);
 		addNewExpenseCheckBox = (CheckBox)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButtonCheckBox);
 
+		//  Right Drawer
+		dateTitleButton = (Button)mRightLinearDrawer.findViewById(R.id.dateTitleButton);
+		dateButton = (Button)mRightLinearDrawer.findViewById(R.id.dateButton);
 		datePicker = (DatePicker)mRightLinearDrawer.findViewById(R.id.datePicker);
-
+		timeButton = (Button)mRightLinearDrawer.findViewById(R.id.timeButton);
+		quantityET = (EditText)mRightLinearDrawer.findViewById(R.id.quantityEditText);
+		commentET = (EditText)mRightLinearDrawer.findViewById(R.id.commentEditText);
+		
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
@@ -178,6 +200,9 @@ public class MainActivity extends SherlockFragmentActivity {
 					if (editActionMode != null) {
 						editActionMode.finish();
 					}
+					
+					// Restore the content position
+					contentPositionSelected = -1;
 				}
 			}
 			
@@ -203,6 +228,36 @@ public class MainActivity extends SherlockFragmentActivity {
 						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
 
 						editActionMode = startActionMode(new EditExpenseActionMode());
+						
+						// Start editing
+						Expense expenseToBeEdited;
+						if (contentPositionSelected >= 0) {
+							expenseToBeEdited = expenseList.get(contentPositionSelected-1);
+						// Else get the last element
+						} else {
+							// TODO: Create a better queue to select the one of the last edition.(Rated?)
+							expenseToBeEdited = expenseList.get(expenseList.size()-1);
+						}
+
+						// Date
+						dateButton.setText(dateFormatter.format(expenseToBeEdited.getDate()));
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(expenseToBeEdited.getDate());
+						datePicker.init(cal.get(Calendar.YEAR),
+								cal.get(Calendar.MONTH),
+								cal.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
+									
+									@Override
+									public void onDateChanged(DatePicker view, int year, int monthOfYear,
+											int dayOfMonth) {
+										dateButton.setText(
+								                new StringBuilder()
+								                        // Month is 0 based so add 1
+								                		.append(year).append("-")
+								                        .append(pad(monthOfYear + 1)).append("-")
+								                        .append(pad(dayOfMonth)));
+									}
+								});
 						// Change the action bar menus
 						// Get the data from the preferences
 						// If there is not data, get the data of the last element of the list (the newest)
@@ -273,6 +328,8 @@ public class MainActivity extends SherlockFragmentActivity {
 			@Override
 			public void onItemClick(AdapterView<?> lparent, View view, int position,
 					long id) {
+				// Save the variable
+				contentPositionSelected = position;
 				// Open right drawer
 				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
 					mDrawerLayout.closeDrawer(mLeftLinearDrawer);
@@ -355,52 +412,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		return result;
 	}
 	
-	private class ContentListAdapter extends ArrayAdapter<String> {
-		
-		private Context context;
-		private List<Expense> expenseList;
-		private SimpleDateFormat format = new SimpleDateFormat("y-M-d HH:mm");
-		private ViewHolder viewHolder;
-
-		class ViewHolder {
-			TextView expenseDateTV;
-			TextView expenseCommentTV;
-			TextView expenseQuantityTV;
-		}
-
-		public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
-			super(context, resource);
-			this.context = context;
-			this.expenseList = expenseList;
-		}
-		
-		@Override
-		public int getCount() {
-			return this.expenseList.size();
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			if (convertView == null) {
-				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-				convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
-				viewHolder = new ViewHolder();
-				viewHolder.expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
-				viewHolder.expenseCommentTV = (TextView)convertView.findViewById(R.id.expenseCommentTextView);
-				viewHolder.expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
-				convertView.setTag(viewHolder);
-			} else {
-				viewHolder = (ViewHolder)convertView.getTag();
-			}
-
-			viewHolder.expenseDateTV.setText(format.format(expenseList.get(position).getDate()));
-			viewHolder.expenseCommentTV.setText(expenseList.get(position).getComment());
-			viewHolder.expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
-
-			return convertView;
-		}
-		
-	}
 
 	private void addNewExpense() {
 		// If the user has not entered any data
@@ -508,4 +519,12 @@ public class MainActivity extends SherlockFragmentActivity {
 		    }, 100);
 		}
 	}
+	
+    private String pad(int c) {
+        if (c >= 10)
+            return String.valueOf(c);
+        else
+            return "0" + String.valueOf(c);
+    }
+
 }

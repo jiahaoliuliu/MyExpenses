@@ -69,6 +69,13 @@
 	            android:textSize="@dimen/drawer_text_size"
 	            android:background="@color/white"
 	            />
+	            <TimePicker
+                        android:id="@+id/timePicker"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        />
+	        
         </LinearLayout>
 
         <!-- Quantity -->

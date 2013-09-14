@@ -123,14 +123,32 @@
 		            android:layout_height="wrap_content"
 		            android:orientation="vertical"
 		            >
-		            
-		            <TextView
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content"
-		                android:text="@string/date_title"
-		                android:textColor="@color/white"
-		                android:textSize="@dimen/drawer_text_title_size"
-		                />
+		            <LinearLayout
+		            	android:id="@+id/dateButtonLinearLayout"
+		            	android:layout_width="fill_parent"
+		            	android:layout_height="wrap_content"
+		            	android:orientation="horizontal"
+		            	>
+			            <Button
+			            	android:id="@+id/dateTitleButton"
+			                android:layout_width="wrap_content"
+			                android:layout_height="wrap_content"
+			                android:text="@string/date_title"
+			                android:textColor="@color/white"
+			                android:textSize="@dimen/drawer_text_title_size"
+			                android:background="@color/black"
+			                />
+			             <Button
+                            android:id="@+id/dateButton"
+                            android:layout_width="fill_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="2013-09-13"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/drawer_text_size"
+                            android:background="@color/black"
+                            />
+			            </LinearLayout>
 		            <DatePicker
 		                android:id="@+id/datePicker"
 		                android:layout_width="wrap_content"
@@ -148,27 +166,42 @@
 		            android:layout_below="@+id/dateLinearLayout"
 		            android:layout_alignLeft="@+id/dateLinearLayout"
 		            android:layout_alignRight="@+id/dateLinearLayout"
-		            android:orientation="horizontal"
+		            android:orientation="vertical"
 		            android:layout_marginTop="@dimen/between_groups_margin"
 		            >
-		            <TextView
-		                android:id="@+id/timeTextView"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content"
-		                android:text="@string/time_title"
-		                android:textColor="@color/white"
-		                android:textSize="@dimen/drawer_text_title_size"
-		                />
-		            <Button
-		                android:id="@+id/timeButton"
-		                android:layout_width="fill_parent"
-		                android:layout_height="wrap_content"
-		                android:gravity="center"
-		                android:text="09:12"
-		                android:textColor="@color/white"
-		                android:textSize="@dimen/drawer_text_size"
-		                android:background="@color/black"
-		                />
+		            <LinearLayout
+		            	android:id="@+id/timeTextLinearLayout"
+		            	android:layout_width="fill_parent"
+		            	android:layout_height="wrap_content"
+		            	android:orientation="horizontal"
+		            	>
+			            <Button
+			                android:id="@+id/timeTitleButton"
+			                android:layout_width="wrap_content"
+			                android:layout_height="wrap_content"
+			                android:text="@string/time_title"
+			                android:textColor="@color/white"
+			                android:textSize="@dimen/drawer_text_title_size"
+			                android:background="@color/black"
+			                />
+			            <Button
+			                android:id="@+id/timeButton"
+			                android:layout_width="fill_parent"
+			                android:layout_height="wrap_content"
+			                android:gravity="center"
+			                android:text="09:12"
+			                android:textColor="@color/white"
+			                android:textSize="@dimen/drawer_text_size"
+			                android:background="@color/black"
+			                />
+		            </LinearLayout>
+		            <TimePicker
+		            	android:id="@+id/timePicker"
+		            	android:layout_width="fill_parent"
+		            	android:layout_height="wrap_content"
+		            	android:gravity="center"
+		            	android:visibility="gone"
+		            	/>
 		        </LinearLayout>
 		
 		        <!-- Quantity -->
