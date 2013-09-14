@@ -104,55 +104,137 @@
         		android:gravity="center"
         		/>
         </RelativeLayout>
-
-        <ScrollView
-        	android:id="@+id/expenseScrollView"
-        	android:layout_width="match_parent"
-        	android:layout_height="match_parent"
-        	>
-	        <RelativeLayout
-	            android:id="@+id/expenseRelativeLayout"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            >
-	        	<DatePicker
-		            android:id="@+id/datePicker"
-		            android:layout_width="wrap_content"
+		<ScrollView
+		    android:id="@+id/expenseScrollView"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    >
+		    <RelativeLayout
+		        android:id="@+id/expenseRelativeLayout"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:paddingLeft="@dimen/activity_horizontal_margin"
+		        android:paddingRight="@dimen/activity_horizontal_margin"
+		        >
+		        <!-- Date -->
+		        <LinearLayout
+		            android:id="@+id/dateLinearLayout"
+		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
-		            android:calendarViewShown="false"
-	 	            android:spinnersShown= "true"
-	 	            android:layout_alignParentTop="true"
-	 	            android:layout_centerHorizontal="true"
+		            android:orientation="vertical"
+		            >
+		            
+		            <TextView
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/date_title"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_title_size"
+		                />
+		            <DatePicker
+		                android:id="@+id/datePicker"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:calendarViewShown="false"
+		                android:spinnersShown= "true"
 		            />
-	        	<EditText
-	        		android:id="@+id/timeEditText"
-	        		android:layout_width="wrap_content"
-	        		android:layout_height="wrap_content"
-	        		android:layout_below="@+id/datePicker"
-	        		android:layout_centerHorizontal="true"
-	        		android:text="Time: 09:12"
-	        		android:textColor="@color/white"
-	                android:textSize="@dimen/drawer_text_size"
-	        		/>
-	            <EditText
-	            	android:id="@+id/commentEditText"
-	            	android:layout_width="wrap_content"
-	            	android:layout_height="wrap_content"
-	            	android:layout_below="@+id/timeEditText"
-	            	android:text="Comment"
-	            	android:textColor="@color/white"
-	            	android:textSize="@dimen/drawer_text_size"
-	            	/>
-	            <EditText
-	                android:id="@+id/quantityEditText"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:layout_below="@+id/commentEditText"
-	                android:text="Quantity: 30.45"
-	                android:textColor="@color/white"
-	                android:textSize="@dimen/drawer_text_size"
-	                />
-            </RelativeLayout>
-        </ScrollView>
+		        </LinearLayout>
+		        
+		        <!-- Time -->
+		        <LinearLayout
+		            android:id="@+id/timeLinearLayout"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_below="@+id/dateLinearLayout"
+		            android:layout_alignLeft="@+id/dateLinearLayout"
+		            android:layout_alignRight="@+id/dateLinearLayout"
+		            android:orientation="horizontal"
+		            android:layout_marginTop="@dimen/between_groups_margin"
+		            >
+		            <TextView
+		                android:id="@+id/timeTextView"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/time_title"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_title_size"
+		                />
+		            <Button
+		                android:id="@+id/timeButton"
+		                android:layout_width="fill_parent"
+		                android:layout_height="wrap_content"
+		                android:gravity="center"
+		                android:text="09:12"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_size"
+		                android:background="@color/black"
+		                />
+		        </LinearLayout>
+		
+		        <!-- Quantity -->
+		        <LinearLayout
+		            android:id="@+id/quantityLinearLayout"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_below="@+id/timeLinearLayout"
+		            android:layout_alignLeft="@+id/dateLinearLayout"
+		            android:layout_alignRight="@+id/dateLinearLayout"
+		            android:orientation="horizontal"
+		            android:layout_marginTop="@dimen/between_groups_margin"
+		            >
+		            <TextView
+		                android:id="@+id/quantityTextView"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/quantity_title"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_title_size"
+		                />
+		            <EditText
+		                android:id="@+id/quantityEditText"
+		                android:layout_width="fill_parent"
+		                android:layout_height="wrap_content"
+		                android:gravity="center"
+		                android:text="34.56"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_size"
+		                android:background="@color/black"
+		                android:inputType="numberDecimal"
+		                android:singleLine="true"
+		                />
+		        </LinearLayout>
+		        
+		        <!-- Comment -->
+		        <LinearLayout
+		            android:id="@+id/commentLinearLayout"
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_below="@+id/quantityLinearLayout"
+		            android:layout_alignLeft="@+id/dateLinearLayout"
+		            android:layout_alignRight="@+id/dateLinearLayout"
+		            android:orientation="vertical"
+		            android:layout_marginTop="@dimen/between_groups_margin"
+		            >
+		            <TextView
+		                android:id="@+id/commentTextView"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:text="@string/comment_title"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_title_size"
+		                />
+		            <EditText
+		                android:id="@+id/commentEditText"
+		                android:layout_width="fill_parent"
+		                android:layout_height="wrap_content"
+		                android:gravity="left"
+		                android:text="this is a very very long comment"
+		                android:textColor="@color/white"
+		                android:textSize="@dimen/drawer_text_size"
+		                android:inputType="textMultiLine"
+		                />
+		        </LinearLayout>
+		    </RelativeLayout>
+		</ScrollView>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>
