@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -109,12 +110,15 @@ public class MainActivity extends SherlockFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.drawer_main);
 
+		context = this;
+		
+		// Lock the screen orientation
+		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
 		// Get the title
 		mTitle = getTitle();
 		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
 		mRightDrawerTitle = getResources().getString(R.string.edit_expense_title);
-
-		context = this;
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
