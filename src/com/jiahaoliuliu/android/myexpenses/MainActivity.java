@@ -39,8 +39,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -64,7 +66,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	private LinearLayout mLeftLinearDrawer;
 	private LinearLayout mRightLinearDrawer;
 	private RelativeLayout noExpenseFoundRelativeLayout;
-	private RelativeLayout expenseFoundRelativeLayout;
+	private ScrollView expenseFoundScrollLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
 	
 	private TextView totalExpenseTV;
@@ -86,12 +88,15 @@ public class MainActivity extends SherlockFragmentActivity {
 	private List<Expense> expenseList;
 
 	// Layouts
-	//  Drawer
+	//  Left Drawer
 	private EditText addNewExpenseEditText;
 	private EditText addNewExpenseCommentEditText;
 	private Button addNewExpenseButton;
 	private CheckBox addNewExpenseCheckBox;
 	
+	//  Right Drawer
+	private DatePicker datePicker;
+
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
 	
@@ -118,7 +123,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
 		mRightLinearDrawer = (LinearLayout)findViewById(R.id.rightLinearDrawer);
 		noExpenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.noExpenseFoundRelativeLayout);
-		expenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.expenseRelativeLayout);
+		expenseFoundScrollLayout = (ScrollView)findViewById(R.id.expenseScrollView);
 
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		contentListView = (ListView)findViewById(R.id.contentListView);
@@ -131,6 +136,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		addNewExpenseCommentEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseCommentEditText);
 		addNewExpenseButton = (Button)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButton);
 		addNewExpenseCheckBox = (CheckBox)mLeftLinearDrawer.findViewById(R.id.addNewExpenseButtonCheckBox);
+
+		datePicker = (DatePicker)mRightLinearDrawer.findViewById(R.id.datePicker);
 
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -182,10 +189,10 @@ public class MainActivity extends SherlockFragmentActivity {
 					if (expenseList.isEmpty()) {
 						// Show the no Expense Found layout
 						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
-						expenseFoundRelativeLayout.setVisibility(View.GONE);
+						expenseFoundScrollLayout.setVisibility(View.GONE);
 					} else {
 						noExpenseFoundRelativeLayout.setVisibility(View.GONE);
-						expenseFoundRelativeLayout.setVisibility(View.VISIBLE);
+						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
 						
 						// Get the data from the preferences
 						// If there is not data, get the data of the last element of the list (the newest)
@@ -442,6 +449,10 @@ public class MainActivity extends SherlockFragmentActivity {
 		super.onResume();
 		//showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		if (showAddNewExpenseAtBeginning) {
+			// Close the right drawer if it was open
+			if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+				mDrawerLayout.closeDrawer(mRightLinearDrawer);
+			}
 			mDrawerLayout.openDrawer(mLeftLinearDrawer);
         	getSupportActionBar().setTitle(mLeftDrawerTitle);
 			addNewExpenseEditText.requestFocus();

@@ -85,7 +85,7 @@
         android:layout_gravity="end"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
-        android:background="@color/white"
+        android:background="@color/black"
         android:orientation="vertical"
         >
         <RelativeLayout
@@ -100,17 +100,59 @@
         		android:text="@string/no_expense_found_edit"
         		android:textSize="@dimen/row_text_size"
         		android:layout_centerInParent="true"
-        		android:textColor="?android:attr/textColorPrimaryInverseDisableOnly"
+        		android:textColor="@color/white"
         		android:gravity="center"
         		/>
         </RelativeLayout>
 
-        <RelativeLayout
-            android:id="@+id/expenseRelativeLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
-        </RelativeLayout>
-        
+        <ScrollView
+        	android:id="@+id/expenseScrollView"
+        	android:layout_width="match_parent"
+        	android:layout_height="match_parent"
+        	>
+	        <RelativeLayout
+	            android:id="@+id/expenseRelativeLayout"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            >
+	        	<DatePicker
+		            android:id="@+id/datePicker"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:calendarViewShown="false"
+	 	            android:spinnersShown= "true"
+	 	            android:layout_alignParentTop="true"
+	 	            android:layout_centerHorizontal="true"
+		            />
+	        	<EditText
+	        		android:id="@+id/timeEditText"
+	        		android:layout_width="wrap_content"
+	        		android:layout_height="wrap_content"
+	        		android:layout_below="@+id/datePicker"
+	        		android:layout_centerHorizontal="true"
+	        		android:text="Time: 09:12"
+	        		android:textColor="@color/white"
+	                android:textSize="@dimen/drawer_text_size"
+	        		/>
+	            <EditText
+	            	android:id="@+id/commentEditText"
+	            	android:layout_width="wrap_content"
+	            	android:layout_height="wrap_content"
+	            	android:layout_below="@+id/timeEditText"
+	            	android:text="Comment"
+	            	android:textColor="@color/white"
+	            	android:textSize="@dimen/drawer_text_size"
+	            	/>
+	            <EditText
+	                android:id="@+id/quantityEditText"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_below="@+id/commentEditText"
+	                android:text="Quantity: 30.45"
+	                android:textColor="@color/white"
+	                android:textSize="@dimen/drawer_text_size"
+	                />
+            </RelativeLayout>
+        </ScrollView>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>
