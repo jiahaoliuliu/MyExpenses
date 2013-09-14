@@ -50,6 +50,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
@@ -106,7 +107,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private Button dateTitleButton;
 	private Button dateButton;
 	private DatePicker datePicker;
+	private Button timeTitleButton;
 	private Button timeButton;
+	private TimePicker timePicker;
 	private EditText quantityET;
 	private EditText commentET;
 	
@@ -162,7 +165,11 @@ public class MainActivity extends SherlockFragmentActivity {
 		dateTitleButton = (Button)mRightLinearDrawer.findViewById(R.id.dateTitleButton);
 		dateButton = (Button)mRightLinearDrawer.findViewById(R.id.dateButton);
 		datePicker = (DatePicker)mRightLinearDrawer.findViewById(R.id.datePicker);
+		
+		timeTitleButton = (Button)mRightLinearDrawer.findViewById(R.id.timeTitleButton);
 		timeButton = (Button)mRightLinearDrawer.findViewById(R.id.timeButton);
+		timePicker = (TimePicker)mRightLinearDrawer.findViewById(R.id.timePicker);
+		
 		quantityET = (EditText)mRightLinearDrawer.findViewById(R.id.quantityEditText);
 		commentET = (EditText)mRightLinearDrawer.findViewById(R.id.commentEditText);
 		
@@ -240,6 +247,8 @@ public class MainActivity extends SherlockFragmentActivity {
 						}
 
 						// Date
+						dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
+						dateButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setText(dateFormatter.format(expenseToBeEdited.getDate()));
 						Calendar cal = Calendar.getInstance();
 						cal.setTime(expenseToBeEdited.getDate());
@@ -258,6 +267,10 @@ public class MainActivity extends SherlockFragmentActivity {
 								                        .append(pad(dayOfMonth)));
 									}
 								});
+						
+						// Time
+						timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
+						timeButton.setOnClickListener(rightDrawerOnClickListener);
 						// Change the action bar menus
 						// Get the data from the preferences
 						// If there is not data, get the data of the last element of the list (the newest)
@@ -338,6 +351,28 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 		});
 	}
+
+	private View.OnClickListener rightDrawerOnClickListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			switch(v.getId()){
+			case R.id.dateTitleButton:
+			case R.id.dateButton:
+				// Show the date picker
+				datePicker.setVisibility(View.VISIBLE);
+				// unShow the time picker
+				timePicker.setVisibility(View.GONE);
+				break;
+			case R.id.timeTitleButton:
+			case R.id.timeButton:
+				// UnShow the date picker
+				datePicker.setVisibility(View.GONE);
+				// Show the time picker
+				timePicker.setVisibility(View.VISIBLE);
+			}
+		}
+	};
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
