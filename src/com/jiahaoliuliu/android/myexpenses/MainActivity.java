@@ -229,6 +229,8 @@ public class MainActivity extends SherlockFragmentActivity {
 					
 					// Restore the content position
 					contentPositionSelected = -1;
+					// Hide soft windows
+					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
 				}
 			}
 			
