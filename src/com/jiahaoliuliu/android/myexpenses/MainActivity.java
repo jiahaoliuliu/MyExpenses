@@ -224,7 +224,7 @@ public class MainActivity extends SherlockFragmentActivity {
 					if (editActionMode != null) {
 						editActionMode.finish();
 					}
-					
+
 					// Restore the content position
 					contentPositionSelected = -1;
 					// Hide soft windows
