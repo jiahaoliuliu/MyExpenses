@@ -96,7 +96,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	private CharSequence mLeftDrawerTitle;
 	private boolean showAddNewExpenseAtBeginning;
 
-	private CharSequence mRightDrawerTitle;
+	// Since the app use an action mode, there is not
+	// sense to change the title when the right drawer
+	// is open
+	//private CharSequence mRightDrawerTitle;
 	private Expense expenseToBeEdited;
 	private AlertDialog removeExpenseAlertDialog;
 
@@ -145,7 +148,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Get the title
 		mTitle = getTitle();
 		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
-		mRightDrawerTitle = getResources().getString(R.string.edit_expense_title);
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
@@ -236,7 +238,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	            // Right drawer
 				} else {
 					// Set the title on the action when drawer open
-					getSupportActionBar().setTitle(mRightDrawerTitle);
+					//getSupportActionBar().setTitle(mRightDrawerTitle);
 					if (expenseList.isEmpty()) {
 						// Show the no Expense Found layout
 						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
@@ -559,6 +561,10 @@ public class MainActivity extends SherlockFragmentActivity {
         	if (item.getItemId() == MENU_CANCEL_BUTTON_ID) {
         		// Remove the expense to be edited
         		expenseToBeEdited = null;
+        		// Close the drawer
+        		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+        			mDrawerLayout.closeDrawer(mRightLinearDrawer);
+        		}
                 mode.finish();
         	} else if (item.getItemId() == MENU_REMOVE_BUTTON_ID) {
         		// Removing the item
