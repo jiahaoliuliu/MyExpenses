@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -126,6 +127,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	private EditText quantityET;
 	private EditText commentET;
 	
+	// Done button
+	private int doneButtonId;
+	private View doneButton;
+
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
 
@@ -185,6 +190,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		quantityET = (EditText)mRightLinearDrawer.findViewById(R.id.quantityEditText);
 		commentET = (EditText)mRightLinearDrawer.findViewById(R.id.commentEditText);
+		doneButtonId = Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android");
 		
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -248,7 +254,8 @@ public class MainActivity extends SherlockFragmentActivity {
 						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
 
 						editActionMode = startActionMode(new EditExpenseActionMode());
-						
+						// The done button is assigned each time the new actionMode is created
+
 						// Start editing
 						if (contentPositionSelected >= 0) {
 							expenseToBeEdited = expenseList.get(contentPositionSelected-1);
@@ -340,6 +347,26 @@ public class MainActivity extends SherlockFragmentActivity {
 						
 						// Comment
 						commentET.setText(expenseToBeEditedCloned.getComment());
+						// Reassign the done button
+						doneButton = findViewById(doneButtonId);
+						doneButton.setOnClickListener(new View.OnClickListener() {
+
+						    @Override
+						    public void onClick(View v) {
+						    	if (editExpense(expenseToBeEditedCloned)) {
+						    		// Close the drawer
+						    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+						    			mDrawerLayout.closeDrawer(mRightLinearDrawer);
+						    		}
+						    	} else {
+						    		// Show the action mode again
+									editActionMode = startActionMode(new EditExpenseActionMode());
+									// Reassign the done button
+									doneButton = findViewById(doneButtonId);
+									doneButton.setOnClickListener(this);
+						    	}
+						    }
+						});
 					}
 				}
 			}
@@ -548,6 +575,7 @@ public class MainActivity extends SherlockFragmentActivity {
             		.NONE, getResources().getString(R.string.action_bar_remove))
             	.setIcon(R.drawable.ic_remove)
             	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+            
             return true;
         }
 
@@ -746,5 +774,20 @@ public class MainActivity extends SherlockFragmentActivity {
 				).show();
 
 		return true;
+    }
+    
+    private boolean editExpense(Expense expenseEdited) {
+    	if (expenseToBeEdited == null) {
+    		Log.e(LOG_TAG, "Error Editing the expense. It is null");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.edit_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+    		return false;
+    	}
+    	
+    	// TODO: check changes
+    	return true;
     }
 }
