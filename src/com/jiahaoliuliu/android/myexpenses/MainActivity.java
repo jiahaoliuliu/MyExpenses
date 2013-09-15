@@ -137,7 +137,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	// Set the number of decimals in the editText
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
-	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
 	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.US);
 	
 	@Override
@@ -292,9 +292,9 @@ public class MainActivity extends SherlockFragmentActivity {
 										dateButton.setText(
 								                new StringBuilder()
 								                        // Month is 0 based so add 1
-								                		.append(year).append("-")
+								                		.append(pad(dayOfMonth)).append("-")
 								                        .append(pad(monthOfYear + 1)).append("-")
-								                        .append(pad(dayOfMonth)));
+								                		.append(year));
 										cal.set(year, monthOfYear, dayOfMonth);
 										// Update the date in the expense
 										expenseToBeEditedCloned.setDate(cal.getTime());
@@ -305,6 +305,7 @@ public class MainActivity extends SherlockFragmentActivity {
 						timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
 						timeButton.setOnClickListener(rightDrawerOnClickListener);
 						timeButton.setText(timeFormatter.format(dateToBeEdited));
+						timePicker.setIs24HourView(true);
 						timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
 						timePicker.setCurrentMinute(cal.get(Calendar.MINUTE));
 						timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {

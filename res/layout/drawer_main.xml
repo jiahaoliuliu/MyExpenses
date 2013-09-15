@@ -122,6 +122,7 @@
 		            android:layout_width="fill_parent"
 		            android:layout_height="wrap_content"
 		            android:orientation="vertical"
+		            android:animateLayoutChanges="true"
 		            >
 		            <LinearLayout
 		            	android:id="@+id/dateButtonLinearLayout"
@@ -143,7 +144,7 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="2013-09-13"
+                            android:text="13-09-2013"
                             android:textColor="@color/white"
                             android:textSize="@dimen/drawer_text_size"
                             android:background="@color/black"
@@ -151,10 +152,11 @@
 			            </LinearLayout>
 		            <DatePicker
 		                android:id="@+id/datePicker"
-		                android:layout_width="wrap_content"
+		                android:layout_width="fill_parent"
 		                android:layout_height="wrap_content"
 		                android:calendarViewShown="false"
 		                android:spinnersShown= "true"
+		                android:gravity="center"
 		            />
 		        </LinearLayout>
 		        
@@ -168,6 +170,7 @@
 		            android:layout_alignRight="@+id/dateLinearLayout"
 		            android:orientation="vertical"
 		            android:layout_marginTop="@dimen/between_groups_margin"
+                    android:animateLayoutChanges="true"
 		            >
 		            <LinearLayout
 		            	android:id="@+id/timeTextLinearLayout"
