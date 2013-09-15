@@ -63,7 +63,7 @@ public class ExpenseDBAdapter {
 	/**
 	 * Register a new expense inside of the database.
 	 */
-	public Expense insertNewExpense (Expense expense) {
+	public boolean insertNewExpense (Expense expense) {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
@@ -71,7 +71,7 @@ public class ExpenseDBAdapter {
 		ContentValues expenseValues = createExpenseValues(expense);
 		int rowId =  (int)database.insert(DATABASE_TABLE, null, expenseValues);
 		expense.set_id(rowId);
-		return expense;
+		return rowId > 0;
 	}
 	
 	public int updateExpense (Expense expense) {
@@ -92,21 +92,19 @@ public class ExpenseDBAdapter {
 		return result;
 	}
 
-	public int deleteExpenseByRowId (int row_id) {
+	/**
+	 * Delete an expense from the database
+	 * @param row_id The row id of the expense
+	 * @return       The number of row removed
+	 */
+	public boolean deleteExpenseByRowId (int row_id) {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
 
-		int result = 0;
-
-		if (database.delete(DATABASE_TABLE, KEY_ROW_ID + "=" + row_id, null) >0) {
-			result = 0;
-		} else {
-			result = 1;
-		}
-		return result;
+		return database.delete(DATABASE_TABLE, KEY_ROW_ID + "=" + row_id, null) > 0;
 	}
-	
+
 	public int deleteAll() {
 		if (database == null || !database.isOpen()) {
 			openDatabase();

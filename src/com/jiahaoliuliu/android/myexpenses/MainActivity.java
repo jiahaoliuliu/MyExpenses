@@ -25,7 +25,9 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
@@ -34,6 +36,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -50,6 +53,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
@@ -68,6 +72,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
 	private static final int MENU_ITEM_RIGHT_LIST_ID = 10000;
+	private static final int MENU_CANCEL_BUTTON_ID = 10001;
+	private static final int MENU_REMOVE_BUTTON_ID = 10002;
 
 	// Variables
 	private DrawerLayout mDrawerLayout;
@@ -78,9 +84,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ActionBarDrawerToggle mDrawerToggle;
 	
 	private TextView totalExpenseTV;
-	private ListView contentListView;
+	private ListView expenseListView;
 	private int contentPositionSelected = -1;
-	private ContentListAdapter contentListAdapter;
+	private ContentListAdapter expenseListAdapter;
 	private ActionMode editActionMode;
 
 	private Context context;
@@ -88,9 +94,12 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	private CharSequence mTitle;
 	private CharSequence mLeftDrawerTitle;
-	private CharSequence mRightDrawerTitle;
-
 	private boolean showAddNewExpenseAtBeginning;
+
+	private CharSequence mRightDrawerTitle;
+	private Expense expenseToBeEdited;
+	private AlertDialog removeExpenseAlertDialog;
+
 	// For the soft input
 	private InputMethodManager imm;
 	private TelephonyManager telephonyManager;
@@ -151,11 +160,11 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		//  Main layout
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
-		contentListView = (ListView)findViewById(R.id.contentListView);
+		expenseListView = (ListView)findViewById(R.id.contentListView);
 		
 		View listHeaderView = getLayoutInflater().inflate(R.layout.list_header_layout, null);
 		totalExpenseTV = (TextView)listHeaderView.findViewById(R.id.totalExpenseQuantityTextView);
-		contentListView.addHeaderView(listHeaderView, null, false);
+		expenseListView.addHeaderView(listHeaderView, null, false);
 
 		//  Left Drawer
 		addNewExpenseEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseEditText);
@@ -239,21 +248,30 @@ public class MainActivity extends SherlockFragmentActivity {
 						editActionMode = startActionMode(new EditExpenseActionMode());
 						
 						// Start editing
-						Expense expenseToBeEditedOrig;
 						if (contentPositionSelected >= 0) {
-							expenseToBeEditedOrig = expenseList.get(contentPositionSelected-1);
+							expenseToBeEdited = expenseList.get(contentPositionSelected-1);
 						// Else get the last element
 						} else {
+							// TODO: Check if the last element clicked on the list has been saved
+							// if not, use it
+							// Otherwise, do get the last element in the queue (The newest)
 							// TODO: Create a better queue to select the one of the last edition.(Rated?)
-							expenseToBeEditedOrig = expenseList.get(expenseList.size()-1);
+							expenseToBeEdited = expenseList.get(expenseList.size()-1);
+						}
+
+						// Clone the expense to be edited
+						final Expense expenseToBeEditedCloned = expenseToBeEdited.clone();
+						if (expenseToBeEditedCloned == null) {
+							Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
+							return;
 						}
 
 						// Date
-						Date dateToBeEdited = expenseToBeEditedOrig.getDate();
+						Date dateToBeEdited = expenseToBeEditedCloned.getDate();
 						dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setText(dateFormatter.format(dateToBeEdited));
-						Calendar cal = Calendar.getInstance();
+						final Calendar cal = Calendar.getInstance();
 						cal.setTime(dateToBeEdited);
 						datePicker.init(cal.get(Calendar.YEAR),
 								cal.get(Calendar.MONTH),
@@ -268,6 +286,9 @@ public class MainActivity extends SherlockFragmentActivity {
 								                		.append(year).append("-")
 								                        .append(pad(monthOfYear + 1)).append("-")
 								                        .append(pad(dayOfMonth)));
+										cal.set(year, monthOfYear, dayOfMonth);
+										// Update the date in the expense
+										expenseToBeEditedCloned.setDate(cal.getTime());
 									}
 								});
 						
@@ -286,8 +307,37 @@ public class MainActivity extends SherlockFragmentActivity {
 											.append(pad(hourOfDay)).append(":")
 											.append(pad(minute))
 										);
+								cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+								cal.set(Calendar.MINUTE, minute);
+								expenseToBeEditedCloned.setDate(cal.getTime());
 							}
 						});
+						
+						// Quantity.
+						quantityET.setText(String.valueOf(expenseToBeEditedCloned.getQuantity()));
+						//Format the text
+						quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
+							
+							@Override
+							public void onFocusChange(View v, boolean hasFocus) {
+								if (!hasFocus) {
+									String quantityStringFormatted = "0.00";
+									String quantityString = quantityET.getText().toString();
+									if (quantityString != null && !quantityString.equals("")) {
+										quantityStringFormatted =
+											dec.format(
+													Double.valueOf(
+															quantityET.getText().toString()
+															)).replace(",", ".");
+									}
+
+									quantityET.setText(quantityStringFormatted);
+								}
+							}
+						});
+						
+						// Comment
+						commentET.setText(expenseToBeEditedCloned.getComment());
 					}
 				}
 			}
@@ -305,8 +355,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
 		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
-		contentListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
-	    contentListView.setAdapter(contentListAdapter);
+		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
+		expenseListView.setAdapter(expenseListAdapter);
 
 		// Layout logic
 		addNewExpenseButton.setOnClickListener(new View.OnClickListener() {
@@ -348,7 +398,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 		});
 		
-		contentListView.setOnItemClickListener(new OnItemClickListener() {
+		expenseListView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> lparent, View view, int position,
@@ -362,6 +412,8 @@ public class MainActivity extends SherlockFragmentActivity {
 				mDrawerLayout.openDrawer(mRightLinearDrawer);
 			}
 		});
+		
+		removeExpenseAlertDialog = createRemoveAlertDialog();
 	}
 
 	private View.OnClickListener rightDrawerOnClickListener = new View.OnClickListener() {
@@ -470,26 +522,14 @@ public class MainActivity extends SherlockFragmentActivity {
 		expense.setDate(new Date());
 		expense.setComment(addNewExpenseCommentEditText.getText().toString());
 		expense.setQuantity(Double.valueOf(quantityStringFormatted));
-		expenseList.add(expense);
-		
-		// Update the layout of the main screen
-		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
 
-		// Clear the edit text
-		addNewExpenseEditText.setText("");
-		addNewExpenseCommentEditText.setText("");
-		// Return the focus to expense edit text
-		addNewExpenseEditText.requestFocus();
-
-		contentListAdapter.notifyDataSetChanged();
-
-		expenseDBAdapter.insertNewExpense(expense);
-
-		Toast.makeText(
-				context,
-				getResources().getString(R.string.add_new_expense_correctly),
-				Toast.LENGTH_LONG
-				).show();
+		// Try to add the expense
+		if (addExpenseToList(expense)) {
+			addNewExpenseEditText.setText("");
+			addNewExpenseCommentEditText.setText("");
+			// Return the focus to expense edit text
+			addNewExpenseEditText.requestFocus();
+		}
 	}
 
 	// The action mode shown in the action bar when the user opens the right drawer
@@ -497,11 +537,13 @@ public class MainActivity extends SherlockFragmentActivity {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             //Used to put dark icons on light action bar
-            menu.add("Cancel")
+            menu.add(Menu.NONE, MENU_CANCEL_BUTTON_ID, Menu
+            		.NONE, getResources().getString(R.string.action_bar_cancel))
             	.setIcon(R.drawable.ic_cancel)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-
-            menu.add("Delete")
+            
+            menu.add(Menu.NONE, MENU_REMOVE_BUTTON_ID, Menu
+            		.NONE, getResources().getString(R.string.action_bar_remove))
             	.setIcon(R.drawable.ic_remove)
             	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             return true;
@@ -514,8 +556,15 @@ public class MainActivity extends SherlockFragmentActivity {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            Toast.makeText(MainActivity.this, "Got click: " + item, Toast.LENGTH_SHORT).show();
-            mode.finish();
+        	if (item.getItemId() == MENU_CANCEL_BUTTON_ID) {
+        		// Remove the expense to be edited
+        		expenseToBeEdited = null;
+                mode.finish();
+        	} else if (item.getItemId() == MENU_REMOVE_BUTTON_ID) {
+        		// Removing the item
+        		// Display the alert message
+        		removeExpenseAlertDialog.show();
+        	}
             return true;
         }
 
@@ -563,4 +612,133 @@ public class MainActivity extends SherlockFragmentActivity {
             return "0" + String.valueOf(c);
     }
 
+    private AlertDialog createRemoveAlertDialog() {
+    	AlertDialog confirmRemovingDialog = new AlertDialog.Builder(MainActivity.this)
+		.setIconAttribute(android.R.attr.alertDialogIcon)
+		.setTitle(getResources().getString(R.string.expense_removing_dialog_title))
+		.setMessage(getResources().getString(R.string.expense_removing_dialog_message))
+        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            	// Try to remove the expense
+            	if (removeExpenseFromList(expenseToBeEdited)) {
+	        		expenseToBeEdited = null;
+	
+	            	// Remove the notification bar
+	            	if (editActionMode != null) {
+	            		editActionMode.finish();
+	            	}
+	
+	            	// Close the drawer
+	            	if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+	            		mDrawerLayout.closeDrawer(mRightLinearDrawer);
+	            	}
+            	}
+            }
+        })
+        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            	Log.v(LOG_TAG, "Remove cancelated");
+            }
+        }).create();
+    	
+    	return confirmRemovingDialog;
+    }
+    
+    // Generic methods to modify the expense list
+    private boolean addExpenseToList(Expense newExpense) {
+    	if (newExpense == null) {
+    		Log.e(LOG_TAG, "Error adding a new expense. It is null");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.add_new_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+    		return false;
+    	}
+    	
+    	Log.v(LOG_TAG, "Adding new expense to the list");
+    	Log.v(LOG_TAG, "\t" + newExpense.toString());
+    	// 1. Expense list
+		if (!expenseList.add(newExpense)) {
+			Log.e(LOG_TAG, "Error adding a new expense to the list layout");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.add_new_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+
+		// 2. Database
+		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
+			Log.e(LOG_TAG, "Error inserting the expense to the database");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.add_new_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+		
+		// 3. Total
+		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		// 4. List Adapter
+		expenseListAdapter.notifyDataSetChanged();
+		// 5. Correct Message
+		Toast.makeText(
+				context,
+				getResources().getString(R.string.add_new_expense_correctly),
+				Toast.LENGTH_LONG
+				).show();
+		return true;
+    }
+    
+    private boolean removeExpenseFromList(Expense expense) {
+    	if (expense == null) {
+    		Log.e(LOG_TAG, "Error removing the expense. It is null");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.remove_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+    		return false;
+    	}
+
+    	Log.v(LOG_TAG, "Removing the follow expense from the list");
+    	Log.v(LOG_TAG, "\t" + expense.toString());
+    	
+    	// 1. Expense list
+		if (!expenseList.remove(expenseToBeEdited)) {
+			Log.e(LOG_TAG, "Error removing the expense from the list layout");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.remove_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+		
+		// 2. Database
+		if (!expenseDBAdapter.deleteExpenseByRowId(expense.get_id())) {
+			Log.e(LOG_TAG, "Error removing the expense from the database");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.remove_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+		// 3. Total
+		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		// 4. List adapter
+		expenseListAdapter.notifyDataSetChanged();
+		// 5. Correct message
+		Toast.makeText(
+				context,
+				getResources().getString(R.string.remove_expense_correctly),
+				Toast.LENGTH_LONG
+				).show();
+
+		return true;
+    }
 }

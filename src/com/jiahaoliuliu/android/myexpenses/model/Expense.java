@@ -102,4 +102,17 @@ public class Expense implements Cloneable {
 		return "Expense [_id=" + _id + ", date=" + date + ", comment="
 				+ comment + ", quantity=" + quantity + "]";
 	}
+
+	@Override
+	public Expense clone() {
+		Expense object = null;
+		try {
+			object = (Expense)super.clone();
+		} catch (CloneNotSupportedException ex) {
+			System.out.println("Clone not supported");
+		}
+		object.setDate((Date)date.clone());
+		return object;
+	}
+
 }

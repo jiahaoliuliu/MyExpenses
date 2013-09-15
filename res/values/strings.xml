@@ -13,19 +13,29 @@
 	<string name="add_new_expense_comment_hint">Comment</string>
 	<string name="add_new_expense_button">Add</string>
 	<string name="add_new_expense_checkbox">Shown at beginning</string>
-	<string name="add_new_expense_correctly">New expense added correctly</string>
+	<string name="add_new_expense_correctly">New expense added correctly.</string>
+	<string name="add_new_expense_wrongly">Error adding new expense. Please try it later.</string>
 	<string name="error_add_new_expense_empty">It seems that you have not entered any quantity. Please, could you check it?</string>
 
 	<!-- Edit expense -->
 	<string name="action_bar_name_edit">Edit</string>
-	<string name="action_bar_save">Save</string>
 	<string name="action_bar_cancel">Cancel</string>
+	<string name="action_bar_remove">Remove</string>
 	<string name="edit_expense_title">Edit expense</string>
 	<string name="no_expense_found_edit">The list of expenses is empty. Please, add some expenses to be edited.</string>
     <string name="date_title">Date:</string>
     <string name="time_title">Time:</string>
     <string name="quantity_title">Quantity: </string>
     <string name="comment_title">Comment:</string>
+    <string name="remove_expense_correctly">Expense removed correctly.</string>
+    <string name="remove_expense_wrongly">Error removing the expense. Please try it later</string>
+    
+    <!-- Removing dialog -->
+    <string name="expense_removing_dialog_title">Removing expense</string>
+    <string name="expense_removing_dialog_message">Are you sure you want to remove this expense?</string>
+    <string name="alert_dialog_ok">Accept</string>
+    <string name="alert_dialog_cancel">Cancel</string>
+    
 	<!-- Main activity -->
 	<string name="total_expense">Total</string>
 </resources>
