@@ -74,22 +74,20 @@ public class ExpenseDBAdapter {
 		return rowId > 0;
 	}
 	
-	public int updateExpense (Expense expense) {
+	/**
+	 * Update an existence expense
+	 * @param expense The expense to be updated
+	 * @return        True if the expense has been updated
+	 *                False otherwise
+	 */
+	public boolean updateExpense (Expense expense) {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
 
-		int result = 0;
-
 		ContentValues updateValues = createExpenseValues(expense);
-		if (database.update(DATABASE_TABLE, updateValues, KEY_ROW_ID + "=" + expense.get_id(), null) > 0) {
-			result = 0;
-		} else {
-			Log.e(LOG_TAG, "Database not updated correctly " + expense.toString());
-			result = 1;
-		}
-		
-		return result;
+		return (database.update
+				(DATABASE_TABLE, updateValues, KEY_ROW_ID + "=" + expense.get_id(), null) > 0);
 	}
 
 	/**
@@ -121,8 +119,8 @@ public class ExpenseDBAdapter {
 		return result;
 	}
 	
-	//Return a Energy consumption. If there is any error, return null
-	public Expense getEnergyConsumptionByRowId (int row_id) throws SQLException  {
+	//Return an Expense. If there is any error, return null
+	public Expense getExpnseByRowId (int row_id) throws SQLException  {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
@@ -271,7 +269,6 @@ public class ExpenseDBAdapter {
 		
 		return result;
 	}
-
 
 	private List<Expense> getAllExpensesFromCursor(Cursor mCursor) {
 		List<Expense> allExpenses = new ArrayList<Expense>();

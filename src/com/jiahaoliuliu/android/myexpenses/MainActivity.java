@@ -106,7 +106,6 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	// For the soft input
 	private InputMethodManager imm;
-	private TelephonyManager telephonyManager;
 
 	private List<Expense> expenseList;
 
@@ -155,7 +154,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-		telephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 		// Link the content
 		//  Layouts
@@ -222,7 +220,7 @@ public class MainActivity extends SherlockFragmentActivity {
 					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
 				// Right drawer
 				} else {
-					// Save the new data to shared preferences
+					// TODO:Save the new data to shared preferences?
 					if (editActionMode != null) {
 						editActionMode.finish();
 					}
@@ -259,18 +257,17 @@ public class MainActivity extends SherlockFragmentActivity {
 						// The done button is assigned each time the new actionMode is created
 
 						// Start editing
-						if (contentPositionSelected >= 0) {
-							expenseToBeEdited = expenseList.get(contentPositionSelected-1);
-						// Else get the last element
-						} else {
+						// If the user has selected any position
+						if (contentPositionSelected < 0) {
+							contentPositionSelected = expenseList.size() -1;
 							// TODO: Check if the last element clicked on the list has been saved
 							// if not, use it
 							// Otherwise, do get the last element in the queue (The newest)
 							// TODO: Create a better queue to select the one of the last edition.(Rated?)
-							expenseToBeEdited = expenseList.get(expenseList.size()-1);
 						}
 
 						// Clone the expense to be edited
+						expenseToBeEdited = expenseList.get(contentPositionSelected);
 						final Expense expenseToBeEditedCloned = expenseToBeEdited.clone();
 						if (expenseToBeEditedCloned == null) {
 							Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
@@ -356,7 +353,9 @@ public class MainActivity extends SherlockFragmentActivity {
 
 						    @Override
 						    public void onClick(View v) {
-						    	if (editExpense(expenseToBeEditedCloned)) {
+						    	expenseToBeEditedCloned.setQuantity(Double.valueOf(quantityET.getText().toString()));
+						    	expenseToBeEditedCloned.setComment(commentET.getText().toString());
+						    	if (updateExpense(expenseToBeEditedCloned)) {
 						    		// Close the drawer
 						    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
 						    			mDrawerLayout.closeDrawer(mRightLinearDrawer);
@@ -436,7 +435,8 @@ public class MainActivity extends SherlockFragmentActivity {
 			public void onItemClick(AdapterView<?> lparent, View view, int position,
 					long id) {
 				// Save the variable
-				contentPositionSelected = position;
+				// The position starts from 1, and the list starts from 0
+				contentPositionSelected = position-1;
 				// Open right drawer
 				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
 					mDrawerLayout.closeDrawer(mLeftLinearDrawer);
@@ -779,18 +779,50 @@ public class MainActivity extends SherlockFragmentActivity {
 		return true;
     }
     
-    private boolean editExpense(Expense expenseEdited) {
-    	if (expenseToBeEdited == null) {
+    private boolean updateExpense(Expense expenseEdited) {
+    	if (expenseEdited == null) {
     		Log.e(LOG_TAG, "Error Editing the expense. It is null");
     		Toast.makeText(
     				context,
-    				getResources().getString(R.string.edit_expense_wrongly),
+    				getResources().getString(R.string.update_expense_wrongly),
     				Toast.LENGTH_LONG
     				).show();
     		return false;
     	}
+
+    	// Check changes
+    	if (expenseToBeEdited.equals(expenseEdited)) {
+    		Log.v(LOG_TAG, "No change was made");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.update_expense_correctly),
+    				Toast.LENGTH_LONG
+    				).show();
+    	}
+
+    	// Expense list
+    	expenseList.set(contentPositionSelected, expenseEdited);
     	
-    	// TODO: check changes
+    	// 2. Database
+    	if (!expenseDBAdapter.updateExpense(expenseToBeEdited)) {
+    		Log.e(LOG_TAG, "Error updating the expense to the database");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.update_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+    		return false;
+    	}
+		// 3. Total
+		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		// 4. List adapter
+		expenseListAdapter.notifyDataSetChanged();
+		// 5. Correct message
+		Toast.makeText(
+				context,
+				getResources().getString(R.string.update_expense_correctly),
+				Toast.LENGTH_LONG
+				).show();
     	return true;
     }
 }

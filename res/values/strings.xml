@@ -29,8 +29,8 @@
     <string name="comment_title">Comment:</string>
     <string name="remove_expense_correctly">Expense removed correctly.</string>
     <string name="remove_expense_wrongly">Error removing the expense. Please try it later.</string>
-    <string name="edit_expense_correctly">The changes has been correctly saved.</string>
-    <string name="edit_expense_wrongly">Error editing the expense. Please try it later.</string>
+    <string name="update_expense_correctly">The changes has been correctly saved.</string>
+    <string name="update_expense_wrongly">Error editing the expense. Please try it later.</string>
     
     <!-- Removing dialog -->
     <string name="expense_removing_dialog_title">Removing expense</string>
