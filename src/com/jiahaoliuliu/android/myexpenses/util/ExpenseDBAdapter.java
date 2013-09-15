@@ -24,7 +24,7 @@ public class ExpenseDBAdapter {
 	
 	private static final String DATABASE_NAME = "Expenses";
 	
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	private static final String DATABASE_TABLE = "expenses";
 	
@@ -34,8 +34,6 @@ public class ExpenseDBAdapter {
 	private static final String KEY_ROW_ID = "_id";
 	private static final String KEY_DATE_ID = "date_id";
 	private static final String KEY_COMMENT_ID = "comment_id";
-	private static final String KEY_LOCATION_CELL_ID = "cell_id";
-	private static final String KEY_LOCATION_LOCAL_AREA_CODE = "local_are_code";
 	private static final String KEY_QUANTITY = "quantity";
 	
 	private Context context;
@@ -72,7 +70,7 @@ public class ExpenseDBAdapter {
 
 		ContentValues expenseValues = createExpenseValues(expense);
 		int rowId =  (int)database.insert(DATABASE_TABLE, null, expenseValues);
-		expense.setId(rowId);
+		expense.set_id(rowId);
 		return expense;
 	}
 	
@@ -84,7 +82,7 @@ public class ExpenseDBAdapter {
 		int result = 0;
 
 		ContentValues updateValues = createExpenseValues(expense);
-		if (database.update(DATABASE_TABLE, updateValues, KEY_ROW_ID + "=" + expense.getId(), null) > 0) {
+		if (database.update(DATABASE_TABLE, updateValues, KEY_ROW_ID + "=" + expense.get_id(), null) > 0) {
 			result = 0;
 		} else {
 			Log.e(LOG_TAG, "Database not updated correctly " + expense.toString());
@@ -138,8 +136,6 @@ public class ExpenseDBAdapter {
 							   new String[] {KEY_ROW_ID,
 											 KEY_DATE_ID,
 											 KEY_COMMENT_ID,
-											 KEY_LOCATION_CELL_ID,
-											 KEY_LOCATION_LOCAL_AREA_CODE,
 											 KEY_QUANTITY
 							                 },
 				                KEY_ROW_ID + "=" + row_id,
@@ -167,8 +163,6 @@ public class ExpenseDBAdapter {
 						   new String[] {KEY_ROW_ID,
 										 KEY_DATE_ID,
 										 KEY_COMMENT_ID,
-										 KEY_LOCATION_CELL_ID,
-										 KEY_LOCATION_LOCAL_AREA_CODE,
 										 KEY_QUANTITY
 		                 				},
 							    null,
@@ -192,8 +186,6 @@ public class ExpenseDBAdapter {
 										   KEY_ROW_ID + " integer primary key autoincrement, " +
 										   KEY_DATE_ID + " text not null, " +
 										   KEY_COMMENT_ID + " text, " +
-										   KEY_LOCATION_CELL_ID + " integer not null default 0, " +
-										   KEY_LOCATION_LOCAL_AREA_CODE + " integer not null default 0, " +
 										   KEY_QUANTITY + " real not null);";
 	
 		// Method is called during creation of the database
@@ -238,13 +230,7 @@ public class ExpenseDBAdapter {
 		String comment = expense.getComment();
 		expenseValues.put(KEY_COMMENT_ID, comment);
 
-		// Location
-		int locationCellId = expense.getLocation().getCid();
-		expenseValues.put(KEY_LOCATION_CELL_ID, locationCellId);
-		
-		int locationLAC = expense.getLocation().getLac();
-		expenseValues.put(KEY_LOCATION_LOCAL_AREA_CODE, locationLAC);
-		
+		// Quantity
 		double quantity = expense.getQuantity();
 		expenseValues.put(KEY_QUANTITY, quantity);
 
@@ -257,7 +243,7 @@ public class ExpenseDBAdapter {
 		
 		// Get basic data
 		if (mCursor == null) {
-			Log.w(LOG_TAG, "Cursor = null. Not energy consumption found");
+			Log.w(LOG_TAG, "Cursor = null. Not expense consumption found");
 		} else if (!mCursor.moveToPosition(position)){
 			Log.w(LOG_TAG, "Position not reachable. The number of elements is " + mCursor.getCount() + "  but requested to access " +
 					"to the position " + position);
@@ -279,14 +265,10 @@ public class ExpenseDBAdapter {
 			// Comment
 			String comment = mCursor.getString(mCursor.getColumnIndex(KEY_COMMENT_ID));
 
-			// Location
-			int locationCellId = mCursor.getInt(mCursor.getColumnIndex(KEY_LOCATION_CELL_ID));
-
-			int locationLAC = mCursor.getInt(mCursor.getColumnIndex(KEY_LOCATION_LOCAL_AREA_CODE));
-			
+			// Quantity
 			double quantity = mCursor.getDouble(mCursor.getColumnIndex(KEY_QUANTITY));
 
-			result = new Expense(row_id, date, comment, locationCellId, locationLAC, quantity);
+			result = new Expense(row_id, date, comment, quantity);
 		}
 		
 		return result;

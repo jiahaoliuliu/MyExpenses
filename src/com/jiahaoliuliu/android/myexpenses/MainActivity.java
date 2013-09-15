@@ -51,6 +51,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
@@ -120,6 +121,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
 	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.US);
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -237,21 +239,22 @@ public class MainActivity extends SherlockFragmentActivity {
 						editActionMode = startActionMode(new EditExpenseActionMode());
 						
 						// Start editing
-						Expense expenseToBeEdited;
+						Expense expenseToBeEditedOrig;
 						if (contentPositionSelected >= 0) {
-							expenseToBeEdited = expenseList.get(contentPositionSelected-1);
+							expenseToBeEditedOrig = expenseList.get(contentPositionSelected-1);
 						// Else get the last element
 						} else {
 							// TODO: Create a better queue to select the one of the last edition.(Rated?)
-							expenseToBeEdited = expenseList.get(expenseList.size()-1);
+							expenseToBeEditedOrig = expenseList.get(expenseList.size()-1);
 						}
 
 						// Date
+						Date dateToBeEdited = expenseToBeEditedOrig.getDate();
 						dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setOnClickListener(rightDrawerOnClickListener);
-						dateButton.setText(dateFormatter.format(expenseToBeEdited.getDate()));
+						dateButton.setText(dateFormatter.format(dateToBeEdited));
 						Calendar cal = Calendar.getInstance();
-						cal.setTime(expenseToBeEdited.getDate());
+						cal.setTime(dateToBeEdited);
 						datePicker.init(cal.get(Calendar.YEAR),
 								cal.get(Calendar.MONTH),
 								cal.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
@@ -271,11 +274,20 @@ public class MainActivity extends SherlockFragmentActivity {
 						// Time
 						timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
 						timeButton.setOnClickListener(rightDrawerOnClickListener);
-						// Change the action bar menus
-						// Get the data from the preferences
-						// If there is not data, get the data of the last element of the list (the newest)
-						
-						// If the user clicks on the accept, cancel or remove button, remove the data from shared preferences
+						timeButton.setText(timeFormatter.format(dateToBeEdited));
+						timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
+						timePicker.setCurrentMinute(cal.get(Calendar.MINUTE));
+						timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+							
+							@Override
+							public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+								timeButton.setText(
+										new StringBuilder()
+											.append(pad(hourOfDay)).append(":")
+											.append(pad(minute))
+										);
+							}
+						});
 					}
 				}
 			}
@@ -428,16 +440,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		getSupportActionBar().setTitle(mTitle);
 	}*/
 
-	private GsmCellLocation getCellLocation() {
-		if (telephonyManager.getPhoneType() == TelephonyManager.PHONE_TYPE_GSM) {
-		    final GsmCellLocation location = (GsmCellLocation) telephonyManager.getCellLocation();
-		    return location;
-		} else {
-			Log.e(LOG_TAG, "The phone type is not gsm");
-			return null;
-		}
-	}
-	
 	private double calculateTotalExpense() {
 		double result = 0.0;
 		for (Expense expense: expenseList) {
@@ -467,7 +469,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		Expense expense = new Expense();
 		expense.setDate(new Date());
 		expense.setComment(addNewExpenseCommentEditText.getText().toString());
-		expense.setLocation(getCellLocation());
 		expense.setQuantity(Double.valueOf(quantityStringFormatted));
 		expenseList.add(expense);
 		

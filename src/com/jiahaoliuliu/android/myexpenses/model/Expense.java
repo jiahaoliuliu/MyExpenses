@@ -2,9 +2,7 @@ package com.jiahaoliuliu.android.myexpenses.model;
 
 import java.util.Date;
 
-import android.telephony.gsm.GsmCellLocation;
-
-public class Expense {
+public class Expense implements Cloneable {
 
 	// The row id in the database
 	private int _id = 0;
@@ -12,9 +10,6 @@ public class Expense {
 	private Date date;
 	
 	private String comment;
-	// The information about the cell.
-	// It contains the cell id and the location area code (LAC)
-	private GsmCellLocation location;
 	// The amount of expense
 	private double quantity;
 
@@ -22,30 +17,19 @@ public class Expense {
 		super();
 	}
 
-	public Expense(Date date, String comment, GsmCellLocation location, double quantity) {
-		super();
-		this.date = date;
-		this.comment = comment;
-		this.location = location;
-		this.quantity = quantity;
-	}
-	
-	public Expense(int _id, Date date, String comment, int locationCellId, int locationLAC, double quantity) {
+	public Expense(int _id, Date date, String comment, double quantity) {
 		super();
 		this._id = _id;
 		this.date = date;
 		this.comment = comment;
-		GsmCellLocation location = new GsmCellLocation();
-		location.setLacAndCid(locationLAC, locationCellId);
-		this.location = location;
 		this.quantity = quantity;
 	}
 
-	public int getId() {
+	public int get_id() {
 		return _id;
 	}
 
-	public void setId(int _id) {
+	public void set_id(int _id) {
 		this._id = _id;
 	}
 
@@ -60,17 +44,9 @@ public class Expense {
 	public String getComment() {
 		return comment;
 	}
-	
+
 	public void setComment(String comment) {
 		this.comment = comment;
-	}
-
-	public GsmCellLocation getLocation() {
-		return location;
-	}
-
-	public void setLocation(GsmCellLocation location) {
-		this.location = location;
 	}
 
 	public double getQuantity() {
@@ -88,8 +64,6 @@ public class Expense {
 		result = prime * result + _id;
 		result = prime * result + ((comment == null) ? 0 : comment.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
-		result = prime * result
-				+ ((location == null) ? 0 : location.hashCode());
 		long temp;
 		temp = Double.doubleToLongBits(quantity);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -117,11 +91,6 @@ public class Expense {
 				return false;
 		} else if (!date.equals(other.date))
 			return false;
-		if (location == null) {
-			if (other.location != null)
-				return false;
-		} else if (!location.equals(other.location))
-			return false;
 		if (Double.doubleToLongBits(quantity) != Double
 				.doubleToLongBits(other.quantity))
 			return false;
@@ -131,7 +100,6 @@ public class Expense {
 	@Override
 	public String toString() {
 		return "Expense [_id=" + _id + ", date=" + date + ", comment="
-				+ comment + ", location=" + location + ", quantity=" + quantity
-				+ "]";
+				+ comment + ", quantity=" + quantity + "]";
 	}
 }
