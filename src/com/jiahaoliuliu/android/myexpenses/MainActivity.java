@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -14,6 +16,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
+import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
@@ -197,6 +200,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Create the variables
 		expenseDBAdapter = new ExpenseDBAdapter(context);
 		expenseList = expenseDBAdapter.getAllExpenses();
+		Collections.sort(expenseList, new ExpenseComparator());
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -709,6 +713,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
 		}
 
+		Collections.sort(expenseList, new ExpenseComparator());
 		// 2. Database
 		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
 			Log.e(LOG_TAG, "Error inserting the expense to the database");
@@ -757,7 +762,8 @@ public class MainActivity extends SherlockFragmentActivity {
     				).show();
 			return false;
 		}
-		
+		Collections.sort(expenseList, new ExpenseComparator());
+
 		// 2. Database
 		if (!expenseDBAdapter.deleteExpenseByRowId(expense.get_id())) {
 			Log.e(LOG_TAG, "Error removing the expense from the database");
@@ -803,11 +809,13 @@ public class MainActivity extends SherlockFragmentActivity {
     				).show();
     	}
 
-    	// Expense list
+    	// 1. Expense list
     	expenseList.set(contentPositionSelected, expenseEdited);
+    	// Sort the content
+    	Collections.sort(expenseList, new ExpenseComparator());
     	
     	// 2. Database
-    	if (!expenseDBAdapter.updateExpense(expenseToBeEdited)) {
+    	if (!expenseDBAdapter.updateExpense(expenseEdited)) {
     		Log.e(LOG_TAG, "Error updating the expense to the database");
     		Toast.makeText(
     				context,
