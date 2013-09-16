@@ -137,6 +137,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
 	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+	private final SimpleDateFormat dayOfWeekFormatter = new SimpleDateFormat("EEE", Locale.US);
 	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.US);
 	
 	@Override
@@ -288,15 +289,17 @@ public class MainActivity extends SherlockFragmentActivity {
 									@Override
 									public void onDateChanged(DatePicker view, int year, int monthOfYear,
 											int dayOfMonth) {
+										// Update the date in the expense
+										cal.set(year, monthOfYear, dayOfMonth);
+										expenseToBeEditedCloned.setDate(cal.getTime());
+										// Update the display
 										dateButton.setText(
 								                new StringBuilder()
 								                        // Month is 0 based so add 1
 								                		.append(pad(dayOfMonth)).append("-")
 								                        .append(pad(monthOfYear + 1)).append("-")
-								                		.append(year));
-										cal.set(year, monthOfYear, dayOfMonth);
-										// Update the date in the expense
-										expenseToBeEditedCloned.setDate(cal.getTime());
+								                		.append(year).append(",")
+								                		.append(dayOfWeekFormatter.format(cal.getTime())));
 									}
 								});
 						

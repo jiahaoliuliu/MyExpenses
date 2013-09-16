@@ -144,7 +144,7 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="13-09-2013"
+                            android:text="13-09-2013,Fri"
                             android:textColor="@color/white"
                             android:textSize="@dimen/drawer_text_size"
                             android:background="@color/black"
