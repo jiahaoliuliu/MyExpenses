@@ -105,6 +105,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	// is open
 	//private CharSequence mRightDrawerTitle;
 	private Expense expenseToBeEdited;
+	private Expense expenseToBeEditedCloned;
 	private AlertDialog removeExpenseAlertDialog;
 
 	// For the soft input
@@ -139,7 +140,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	// Set the number of decimals in the editText
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
-	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy,EEE", Locale.US);
 	private final SimpleDateFormat dayOfWeekFormatter = new SimpleDateFormat("EEE", Locale.US);
 	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.US);
 	
@@ -273,7 +274,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 						// Clone the expense to be edited
 						expenseToBeEdited = expenseList.get(contentPositionSelected);
-						final Expense expenseToBeEditedCloned = expenseToBeEdited.clone();
+						expenseToBeEditedCloned = expenseToBeEdited.clone();
 						if (expenseToBeEditedCloned == null) {
 							Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
 							return;
@@ -295,7 +296,6 @@ public class MainActivity extends SherlockFragmentActivity {
 											int dayOfMonth) {
 										// Update the date in the expense
 										cal.set(year, monthOfYear, dayOfMonth);
-										expenseToBeEditedCloned.setDate(cal.getTime());
 										// Update the display
 										dateButton.setText(
 								                new StringBuilder()
@@ -360,8 +360,14 @@ public class MainActivity extends SherlockFragmentActivity {
 
 						    @Override
 						    public void onClick(View v) {
+								expenseToBeEditedCloned.setDate(cal.getTime());
 						    	expenseToBeEditedCloned.setQuantity(Double.valueOf(quantityET.getText().toString()));
 						    	expenseToBeEditedCloned.setComment(commentET.getText().toString());
+								Log.v(LOG_TAG, "Date changed");
+								Log.v(LOG_TAG, "Cloned: " + expenseToBeEditedCloned.toString());
+								Log.v(LOG_TAG, "Original: " + expenseToBeEdited.toString());
+								printExpenseList();
+
 						    	if (updateExpense(expenseToBeEditedCloned)) {
 						    		// Close the drawer
 						    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
@@ -700,6 +706,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		return false;
     	}
     	
+
     	Log.v(LOG_TAG, "Adding new expense to the list");
     	Log.v(LOG_TAG, "\t" + newExpense.toString());
     	// 1. Expense list
@@ -752,8 +759,19 @@ public class MainActivity extends SherlockFragmentActivity {
     	Log.v(LOG_TAG, "Removing the follow expense from the list");
     	Log.v(LOG_TAG, "\t" + expense.toString());
     	
-    	// 1. Expense list
-		if (!expenseList.remove(expenseToBeEdited)) {
+		// 1. Database
+		if (!expenseDBAdapter.deleteExpenseByRowId(expense.get_id())) {
+			Log.e(LOG_TAG, "Error removing the expense from the database");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.remove_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+
+    	// 2. Expense list
+		if (!expenseList.remove(expense)) {
 			Log.e(LOG_TAG, "Error removing the expense from the list layout");
     		Toast.makeText(
     				context,
@@ -764,16 +782,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 		Collections.sort(expenseList, new ExpenseComparator());
 
-		// 2. Database
-		if (!expenseDBAdapter.deleteExpenseByRowId(expense.get_id())) {
-			Log.e(LOG_TAG, "Error removing the expense from the database");
-    		Toast.makeText(
-    				context,
-    				getResources().getString(R.string.remove_expense_wrongly),
-    				Toast.LENGTH_LONG
-    				).show();
-			return false;
-		}
 		// 3. Total
 		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
 		// 4. List adapter
@@ -799,6 +807,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		return false;
     	}
 
+    	Log.v(LOG_TAG, "Updating the expense list: " + expenseEdited.toString());
     	// Check changes
     	if (expenseToBeEdited.equals(expenseEdited)) {
     		Log.v(LOG_TAG, "No change was made");
@@ -810,7 +819,12 @@ public class MainActivity extends SherlockFragmentActivity {
     	}
 
     	// 1. Expense list
-    	expenseList.set(contentPositionSelected, expenseEdited);
+    	Log.v(LOG_TAG, "Expense to be removed: " + expenseToBeEdited.toString());
+    	Log.v(LOG_TAG, "Expense to be added: " + expenseEdited.toString());
+    	expenseList.remove(expenseToBeEdited);
+    	expenseList.add(expenseEdited);
+    	printExpenseList();
+    	Log.v(LOG_TAG, "Expense list:");
     	// Sort the content
     	Collections.sort(expenseList, new ExpenseComparator());
     	
@@ -835,5 +849,11 @@ public class MainActivity extends SherlockFragmentActivity {
 				Toast.LENGTH_LONG
 				).show();
     	return true;
+    }
+    
+    private void printExpenseList() {
+    	for (Expense expense: expenseList) {
+    		Log.v(LOG_TAG, expense.toString());
+    	}
     }
 }
