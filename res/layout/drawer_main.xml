@@ -55,6 +55,7 @@
             android:singleLine="true"
             android:ellipsize="end"
             android:textSize="@dimen/drawer_text_size"
+            android:inputType="textCapSentences"
             />
 	    	
 	    <Button

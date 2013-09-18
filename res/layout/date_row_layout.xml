@@ -9,32 +9,55 @@
 	>
 
     <TextView
-    	android:id="@+id/expenseDateTextView"
+    	android:id="@+id/expenseDayOfWeekTextView"
     	android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
         android:layout_toLeftOf="@+id/expenseQuantityTextView"
     	android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
-    	android:textSize="@dimen/row_text_size"
-        android:text="Date" />
+    	android:textSize="@dimen/row_uptitle_size"
+        android:text="Thursday" />
 
+    <TextView
+        android:id="@+id/expenseDateTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/expenseDayOfWeekTextView"
+        android:layout_alignRight="@+id/expenseDayOfWeekTextView"
+        android:layout_below="@+id/expenseDayOfWeekTextView"
+        android:textSize="@dimen/row_text_size"
+        android:text="13 September 2013" />
+
+    <TextView
+        android:id="@+id/expenseHoursTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/expenseDayOfWeekTextView"
+        android:layout_alignRight="@+id/expenseDayOfWeekTextView"
+        android:layout_below="@+id/expenseDateTextView"
+        android:textSize="@dimen/row_subtitle_size"
+        android:layout_marginLeft="5dp"
+        android:text="13:45" />
+    
     <TextView
         android:id="@+id/expenseCommentTextView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/expenseDateTextView"
-        android:layout_below="@+id/expenseDateTextView"
+        android:layout_below="@+id/expenseHoursTextView"
         android:textSize="@dimen/row_subtitle_size"
         android:text="This is a very very long comment"
         android:layout_toLeftOf="@+id/expenseQuantityTextView"
+        android:layout_marginLeft="5dp"
+        
         />
-
+    
     <TextView
     	android:id="@+id/expenseQuantityTextView"
     	android:layout_width="wrap_content"
     	android:layout_height="wrap_content"
     	android:layout_alignParentRight="true"
-    	android:text="quantity"
+    	android:text="34.55"
     	android:textSize="@dimen/row_text_size"
     	android:layout_centerVertical="true"
     	/>

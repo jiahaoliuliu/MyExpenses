@@ -2,10 +2,8 @@ package com.jiahaoliuliu.android.myexpenses;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -21,43 +19,30 @@ import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CheckedTextView;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 import android.widget.Toast;
@@ -67,16 +52,13 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import android.support.v4.view.GravityCompat;
-import android.telephony.CellLocation;
-import android.telephony.TelephonyManager;
-import android.telephony.gsm.GsmCellLocation;
 
 public class MainActivity extends SherlockFragmentActivity {
 
 	private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
 	private static final int MENU_ITEM_RIGHT_LIST_ID = 10000;
-	private static final int MENU_CANCEL_BUTTON_ID = 10001;
+	private static final int MENU_SAVE_BUTTON_ID = 10001;
 	private static final int MENU_REMOVE_BUTTON_ID = 10002;
 
 	// Variables
@@ -91,21 +73,18 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ListView expenseListView;
 	private int contentPositionSelected = -1;
 	private ContentListAdapter expenseListAdapter;
-	private ActionMode editActionMode;
 
 	private Context context;
 	private Preferences preferences;
 	
 	private CharSequence mTitle;
 	private CharSequence mLeftDrawerTitle;
+	private CharSequence mRightDrawerTitle;
 	private boolean showAddNewExpenseAtBeginning;
 
-	// Since the app use an action mode, there is not
-	// sense to change the title when the right drawer
-	// is open
-	//private CharSequence mRightDrawerTitle;
 	private Expense expenseToBeEdited;
 	private Expense expenseToBeEditedCloned;
+	private Calendar calendar;
 	private AlertDialog removeExpenseAlertDialog;
 
 	// For the soft input
@@ -130,9 +109,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	private EditText quantityET;
 	private EditText commentET;
 	
-	// Done button
-	private int doneButtonId;
-	private View doneButton;
+	// The action menu
+	private Menu actionBarMenu;
 
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
@@ -140,9 +118,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	// Set the number of decimals in the editText
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
-	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy,EEE", Locale.US);
-	private final SimpleDateFormat dayOfWeekFormatter = new SimpleDateFormat("EEE", Locale.US);
-	private final SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm", Locale.US);
+	private SimpleDateFormat dateFormatter;
+	private SimpleDateFormat timeFormatter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -150,13 +127,17 @@ public class MainActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.drawer_main);
 
 		context = this;
-		
+
+		Locale currentLocale = getResources().getConfiguration().locale;
+		dateFormatter = new SimpleDateFormat("dd MMM yyyy,EEE", currentLocale);
+		timeFormatter = new SimpleDateFormat("HH:mm", currentLocale);
 		// Lock the screen orientation
 		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 		// Get the title
 		mTitle = getTitle();
 		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
+		mRightDrawerTitle = getResources().getString(R.string.edit_expense_title);
 		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -193,7 +174,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		
 		quantityET = (EditText)mRightLinearDrawer.findViewById(R.id.quantityEditText);
 		commentET = (EditText)mRightLinearDrawer.findViewById(R.id.commentEditText);
-		doneButtonId = Resources.getSystem().getIdentifier("action_mode_close_button", "id", "android");
 		
 		// Set a custom shadow that overlays the main content when the drawer opens
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -219,6 +199,8 @@ public class MainActivity extends SherlockFragmentActivity {
 			public void onDrawerClosed(View view) {
 				super.onDrawerClosed(view);
 				getSupportActionBar().setTitle(mTitle);
+				createMainMenu();
+
 				if (view.equals(mLeftLinearDrawer)) {
 					addNewExpenseEditText.clearFocus();
 	
@@ -226,11 +208,6 @@ public class MainActivity extends SherlockFragmentActivity {
 					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
 				// Right drawer
 				} else {
-					// TODO:Save the new data to shared preferences?
-					if (editActionMode != null) {
-						editActionMode.finish();
-					}
-
 					// Restore the content position
 					contentPositionSelected = -1;
 					// Hide soft windows
@@ -250,7 +227,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	            // Right drawer
 				} else {
 					// Set the title on the action when drawer open
-					//getSupportActionBar().setTitle(mRightDrawerTitle);
+					getSupportActionBar().setTitle(mRightDrawerTitle);
+
 					if (expenseList.isEmpty()) {
 						// Show the no Expense Found layout
 						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
@@ -259,15 +237,13 @@ public class MainActivity extends SherlockFragmentActivity {
 						noExpenseFoundRelativeLayout.setVisibility(View.GONE);
 						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
 
-						editActionMode = startActionMode(new EditExpenseActionMode());
-						// The done button is assigned each time the new actionMode is created
+						createEditExpenseMenu();
 
-						// Start editing
 						// If the user has selected any position
 						if (contentPositionSelected < 0) {
 							contentPositionSelected = expenseList.size() -1;
 							// TODO: Check if the last element clicked on the list has been saved
-							// if not, use it
+							// if so, use it
 							// Otherwise, do get the last element in the queue (The newest)
 							// TODO: Create a better queue to select the one of the last edition.(Rated?)
 						}
@@ -282,28 +258,27 @@ public class MainActivity extends SherlockFragmentActivity {
 
 						// Date
 						Date dateToBeEdited = expenseToBeEditedCloned.getDate();
+						calendar = Calendar.getInstance();
+						calendar.setTime(dateToBeEdited);
+
 						dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setOnClickListener(rightDrawerOnClickListener);
 						dateButton.setText(dateFormatter.format(dateToBeEdited));
-						final Calendar cal = Calendar.getInstance();
-						cal.setTime(dateToBeEdited);
-						datePicker.init(cal.get(Calendar.YEAR),
-								cal.get(Calendar.MONTH),
-								cal.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
+						datePicker.init(calendar.get(Calendar.YEAR),
+								calendar.get(Calendar.MONTH),
+								calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
 									
 									@Override
 									public void onDateChanged(DatePicker view, int year, int monthOfYear,
 											int dayOfMonth) {
 										// Update the date in the expense
-										cal.set(year, monthOfYear, dayOfMonth);
+										calendar.set(year, monthOfYear, dayOfMonth);
 										// Update the display
 										dateButton.setText(
 								                new StringBuilder()
 								                        // Month is 0 based so add 1
-								                		.append(pad(dayOfMonth)).append("-")
-								                        .append(pad(monthOfYear + 1)).append("-")
-								                		.append(year).append(",")
-								                		.append(dayOfWeekFormatter.format(cal.getTime())));
+								                		.append(dateFormatter.format(calendar.getTime())));
+										expenseToBeEditedCloned.setDate(calendar.getTime());
 									}
 								});
 						
@@ -312,8 +287,8 @@ public class MainActivity extends SherlockFragmentActivity {
 						timeButton.setOnClickListener(rightDrawerOnClickListener);
 						timeButton.setText(timeFormatter.format(dateToBeEdited));
 						timePicker.setIs24HourView(true);
-						timePicker.setCurrentHour(cal.get(Calendar.HOUR_OF_DAY));
-						timePicker.setCurrentMinute(cal.get(Calendar.MINUTE));
+						timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+						timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 						timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
 							
 							@Override
@@ -323,15 +298,16 @@ public class MainActivity extends SherlockFragmentActivity {
 											.append(pad(hourOfDay)).append(":")
 											.append(pad(minute))
 										);
-								cal.set(Calendar.HOUR_OF_DAY, hourOfDay);
-								cal.set(Calendar.MINUTE, minute);
-								expenseToBeEditedCloned.setDate(cal.getTime());
+								calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+								calendar.set(Calendar.MINUTE, minute);
+								expenseToBeEditedCloned.setDate(calendar.getTime());
 							}
 						});
 						
 						// Quantity.
 						quantityET.setText(String.valueOf(expenseToBeEditedCloned.getQuantity()));
-						//Format the text
+
+						//Format the quantity after user editing
 						quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
 							
 							@Override
@@ -354,34 +330,6 @@ public class MainActivity extends SherlockFragmentActivity {
 						
 						// Comment
 						commentET.setText(expenseToBeEditedCloned.getComment());
-						// Reassign the done button
-						doneButton = findViewById(doneButtonId);
-						doneButton.setOnClickListener(new View.OnClickListener() {
-
-						    @Override
-						    public void onClick(View v) {
-								expenseToBeEditedCloned.setDate(cal.getTime());
-						    	expenseToBeEditedCloned.setQuantity(Double.valueOf(quantityET.getText().toString()));
-						    	expenseToBeEditedCloned.setComment(commentET.getText().toString());
-								Log.v(LOG_TAG, "Date changed");
-								Log.v(LOG_TAG, "Cloned: " + expenseToBeEditedCloned.toString());
-								Log.v(LOG_TAG, "Original: " + expenseToBeEdited.toString());
-								printExpenseList();
-
-						    	if (updateExpense(expenseToBeEditedCloned)) {
-						    		// Close the drawer
-						    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
-						    			mDrawerLayout.closeDrawer(mRightLinearDrawer);
-						    		}
-						    	} else {
-						    		// Show the action mode again
-									editActionMode = startActionMode(new EditExpenseActionMode());
-									// Reassign the done button
-									doneButton = findViewById(doneButtonId);
-									doneButton.setOnClickListener(this);
-						    	}
-						    }
-						});
 					}
 				}
 			}
@@ -485,11 +433,38 @@ public class MainActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
-        		.NONE, context.getResources().getString(R.string.action_bar_name_edit))
-        	.setIcon(R.drawable.ic_drawer)
-        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+    	actionBarMenu = menu;
+    	createMainMenu();
         return true;
+    }
+
+    private void createMainMenu() {
+    	actionBarMenu.clear();
+
+    	actionBarMenu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
+        		.NONE, context.getResources().getString(R.string.action_bar_name_edit))
+        	.setIcon(R.drawable.ic_menu_edit)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+    }
+
+    private void createEditExpenseMenu() {
+    	actionBarMenu.clear();
+    	
+        //Used to put dark icons on light action bar
+    	actionBarMenu.add(Menu.NONE, MENU_SAVE_BUTTON_ID, Menu
+        		.NONE, getResources().getString(R.string.action_bar_save))
+        	.setIcon(R.drawable.ic_menu_save)
+            .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        
+    	actionBarMenu.add(Menu.NONE, MENU_REMOVE_BUTTON_ID, Menu
+        		.NONE, getResources().getString(R.string.action_bar_remove))
+        	.setIcon(R.drawable.ic_menu_remove)
+        	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+
+    	actionBarMenu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
+        		.NONE, context.getResources().getString(R.string.action_bar_name_edit))
+        	.setIcon(R.drawable.ic_menu_edit)
+        .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
     }
 
 	@Override
@@ -512,6 +487,24 @@ public class MainActivity extends SherlockFragmentActivity {
 				}
 				mDrawerLayout.openDrawer(mRightLinearDrawer);
 			}
+		} else if (item.getItemId() == MENU_SAVE_BUTTON_ID) {
+	    	expenseToBeEditedCloned.setQuantity(Double.valueOf(quantityET.getText().toString()));
+	    	expenseToBeEditedCloned.setComment(commentET.getText().toString());
+			Log.v(LOG_TAG, "Date changed");
+			Log.v(LOG_TAG, "Cloned: " + expenseToBeEditedCloned.toString());
+			Log.v(LOG_TAG, "Original: " + expenseToBeEdited.toString());
+			printExpenseList();
+
+	    	if (updateExpense(expenseToBeEditedCloned)) {
+	    		// Close the drawer
+	    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
+	    			mDrawerLayout.closeDrawer(mRightLinearDrawer);
+	    		}
+	    	}
+    		// Remove the expense to be edited
+    		expenseToBeEdited = null;
+		} else if (item.getItemId() == MENU_REMOVE_BUTTON_ID) {
+    		removeExpenseAlertDialog.show();
 		}
 		
 		return super.onOptionsItemSelected(item);
@@ -577,52 +570,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 	}
 
-	// The action mode shown in the action bar when the user opens the right drawer
-    private final class EditExpenseActionMode implements ActionMode.Callback {
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            //Used to put dark icons on light action bar
-            menu.add(Menu.NONE, MENU_CANCEL_BUTTON_ID, Menu
-            		.NONE, getResources().getString(R.string.action_bar_cancel))
-            	.setIcon(R.drawable.ic_cancel)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-            
-            menu.add(Menu.NONE, MENU_REMOVE_BUTTON_ID, Menu
-            		.NONE, getResources().getString(R.string.action_bar_remove))
-            	.setIcon(R.drawable.ic_remove)
-            	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
-            
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        	if (item.getItemId() == MENU_CANCEL_BUTTON_ID) {
-        		// Remove the expense to be edited
-        		expenseToBeEdited = null;
-        		// Close the drawer
-        		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
-        			mDrawerLayout.closeDrawer(mRightLinearDrawer);
-        		}
-                mode.finish();
-        	} else if (item.getItemId() == MENU_REMOVE_BUTTON_ID) {
-        		// Removing the item
-        		// Display the alert message
-        		removeExpenseAlertDialog.show();
-        	}
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-        }
-    }
-
 // Life cycle
 	@Override
 	protected void onPause() {
@@ -672,11 +619,6 @@ public class MainActivity extends SherlockFragmentActivity {
             	// Try to remove the expense
             	if (removeExpenseFromList(expenseToBeEdited)) {
 	        		expenseToBeEdited = null;
-	
-	            	// Remove the notification bar
-	            	if (editActionMode != null) {
-	            		editActionMode.finish();
-	            	}
 	
 	            	// Close the drawer
 	            	if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
