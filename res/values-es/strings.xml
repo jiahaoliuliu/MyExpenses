@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<string name="app_name">Mis gastos</string>
+    <string name="drawer_open">Abrir el menú lateral</string>
+    <string name="drawer_close">Cerrar el menú lateral</string>
+	
+	<!-- Add new expense -->
+	<string name="add_new_expense_title">Añadir un nuevo gasto</string>
+	<string name="add_new_expense_hint">Añada un nuevo gasto</string>
+	<string name="add_new_expense_comment_hint">Recordatorio</string>
+	<string name="add_new_expense_button">Añadir</string>
+	<string name="add_new_expense_checkbox">Mostrar al iniciar</string>
+	<string name="add_new_expense_correctly">Nuevo gasto añadido correctamente.</string>
+	<string name="add_new_expense_wrongly">Error añadiendo el nuevo gasto. Por favor, intentad más tarde.</string>
+	<string name="error_add_new_expense_empty">Parece que no has introducido ninguna cantidad. ¿Podrías comprobarlo?</string>
+
+	<!-- Edit expense -->
+	<string name="edit_expense_title">Modificar gasto</string>
+	<string name="action_bar_name_edit">Modificar</string>
+	<string name="action_bar_save">Guardar</string>
+	<string name="action_bar_remove">Eliminar</string>
+	<string name="edit_expense_title">Modificar gasto</string>
+	<string name="no_expense_found_edit">Parece que la lista de gastos está vacía. ¿Podrías comprobarlo?</string>
+    <string name="date_title">Fecha:</string>
+    <string name="time_title">Hora:</string>
+    <string name="quantity_title">Cantidad: </string>
+    <string name="comment_title">Recordatorio:</string>
+
+    <string name="remove_expense_correctly">El gasto ha sido eliminado correctamente.</string>
+    <string name="remove_expense_wrongly">Error eliminando el gasto. Por favor, intentad más tarde.</string>
+    <string name="update_expense_correctly">Los cambios ha sido guardados correctamente.</string>
+    <string name="update_expense_wrongly">Error guardando los cambios. Por favor, intentad más tarde.</string>
+    
+    <!-- Removing dialog -->
+    <string name="expense_removing_dialog_title">Eliminando gasto</string>
+    <string name="expense_removing_dialog_message">¿Estás seguro de que quieras eliminar este gasto?</string>
+    <string name="alert_dialog_ok">Aceptar</string>
+    <string name="alert_dialog_cancel">Cancelar</string>
+    
+	<!-- Main activity -->
+	<string name="total_expense">TOTAL</string>
+</resources>
