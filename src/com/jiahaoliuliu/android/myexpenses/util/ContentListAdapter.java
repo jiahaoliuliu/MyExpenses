@@ -2,6 +2,7 @@ package com.jiahaoliuliu.android.myexpenses.util;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jiahaoliuliu.android.myexpenses.R;
@@ -23,17 +25,12 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 	private SimpleDateFormat dayOfWeekFormatter;
 	private SimpleDateFormat dateFormatter;
 	private SimpleDateFormat hourFormtter;
-	private ViewHolder viewHolder;
+	//private ViewHolder viewHolder;
 	// Set the number of decimals in the editText
 	private DecimalFormat dec = new DecimalFormat("0.00");
-
-	class ViewHolder {
-		TextView expenseDayOfWeekTV;
-		TextView expenseDateTV;
-		TextView expenseHourTV;
-		TextView expenseCommentTV;
-		TextView expenseQuantityTV;
-	}
+	// The date of the last group to determine if new group should be created or not
+	private Date lastGroupDate = null;
+	private LayoutInflater inflater;
 
 	public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
 		super(context, resource);
@@ -43,6 +40,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		dayOfWeekFormatter = new SimpleDateFormat("EEEE", currentLocale);
 		dateFormatter = new SimpleDateFormat("dd MMMM yyyy", currentLocale);
 		hourFormtter = new SimpleDateFormat("HH:mm", currentLocale);
+		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
 	@Override
@@ -52,28 +50,55 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
-			viewHolder = new ViewHolder();
-			viewHolder.expenseDayOfWeekTV = (TextView)convertView.findViewById(R.id.expenseDayOfWeekTextView);
-			viewHolder.expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
-			viewHolder.expenseHourTV = (TextView)convertView.findViewById(R.id.expenseHoursTextView);
-			viewHolder.expenseCommentTV = (TextView)convertView.findViewById(R.id.expenseCommentTextView);
-			viewHolder.expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
-			convertView.setTag(viewHolder);
-		} else {
-			viewHolder = (ViewHolder)convertView.getTag();
-		}
-		
+		convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
 		Date date = expenseList.get(position).getDate();
-		viewHolder.expenseDayOfWeekTV.setText(dayOfWeekFormatter.format(date));
-		viewHolder.expenseDateTV.setText(dateFormatter.format(date));
-		viewHolder.expenseHourTV.setText(hourFormtter.format(date));
-		viewHolder.expenseCommentTV.setText(expenseList.get(position).getComment());
-		viewHolder.expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
+
+		if (isNewGroup(position)) {
+			TextView expenseDayOfWeekTV = (TextView)convertView.findViewById(R.id.expenseDayOfWeekTextView);
+			expenseDayOfWeekTV.setText(dayOfWeekFormatter.format(date));
+
+			TextView expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
+			expenseDateTV.setText(dateFormatter.format(date));
+		} else {
+			LinearLayout rowHeaderLayout = (LinearLayout)convertView.findViewById(R.id.expenseHeaderLayout);
+			rowHeaderLayout.setVisibility(View.GONE);
+		}
+		TextView expenseHourTV = (TextView)convertView.findViewById(R.id.expenseHoursTextView);
+		expenseHourTV.setText(hourFormtter.format(date));
+
+		TextView expenseCommentTV = (TextView)convertView.findViewById(R.id.expenseCommentTextView);
+		expenseCommentTV.setText(expenseList.get(position).getComment());
+
+		TextView expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
+		expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
 
 		return convertView;
 	}
 	
+	 private boolean isNewGroup(int position) {
+		 // If the group has never been created, create it (and set the date)
+		 if (lastGroupDate == null) {
+			 lastGroupDate = expenseList.get(position).getDate();
+			 return true;
+		 }
+
+         // Compare date values, ignore time values
+         Calendar calThis = Calendar.getInstance();
+         Date thisDate = expenseList.get(position).getDate();
+         calThis.setTime(thisDate);
+
+         Calendar calPrev = Calendar.getInstance();
+         calPrev.setTime(lastGroupDate);
+
+         int nDayThis = calThis.get(Calendar.DAY_OF_YEAR);
+         int nDayPrev = calPrev.get(Calendar.DAY_OF_YEAR);
+
+         if (nDayThis != nDayPrev || calThis.get(Calendar.YEAR) != calPrev.get(Calendar.YEAR)) {
+        	 lastGroupDate = thisDate;
+             return true;
+         }
+
+		 return false;
+     }
+
 }
