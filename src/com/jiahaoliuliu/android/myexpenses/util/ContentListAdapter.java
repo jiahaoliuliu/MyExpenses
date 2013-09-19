@@ -83,11 +83,11 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		 }
 
          // Compare date values, ignore time values
-         Calendar calThis = Calendar.getInstance();
+         Calendar calThis = Calendar.getInstance(context.getResources().getConfiguration().locale);
          Date thisDate = expenseList.get(position).getDate();
          calThis.setTime(thisDate);
 
-         Calendar calPrev = Calendar.getInstance();
+         Calendar calPrev = Calendar.getInstance(context.getResources().getConfiguration().locale);
          calPrev.setTime(lastGroupDate);
 
          int nDayThis = calThis.get(Calendar.DAY_OF_YEAR);
