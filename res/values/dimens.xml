@@ -6,6 +6,7 @@
 	<dimen name="between_groups_margin">10dp</dimen>
 	
 	<dimen name="header_text_size">30sp</dimen>
+	<dimen name="warning_message_text_size">30sp</dimen>
 	
 	<dimen name="row_uptitle_size">15sp</dimen>
 	<dimen name="row_text_size">25sp</dimen>

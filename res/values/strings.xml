@@ -41,4 +41,5 @@
     
 	<!-- Main activity -->
 	<string name="total_expense">TOTAL</string>
+	<string name="warning_empty_list">It seems that you have not enter any expenses yet.\n\nPlease, use the botton on the top-left corner to open the left drawer and enter some expense.</string>
 </resources>

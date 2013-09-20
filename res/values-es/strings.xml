@@ -40,4 +40,6 @@
     
 	<!-- Main activity -->
 	<string name="total_expense">TOTAL</string>
+    <string name="warning_empty_list">Parece que la lista de gastos está vacía.\n\nPor favor, use el botón de la esquina superior izquierda para introducir algún gasto.</string>
+	
 </resources>
