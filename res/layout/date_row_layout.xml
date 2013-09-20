@@ -7,7 +7,7 @@
 	android:paddingLeft="@dimen/activity_horizontal_margin"
 	android:paddingRight="@dimen/activity_horizontal_margin" >
 
-	<LinearLayout
+	<RelativeLayout
 		android:id="@+id/expenseHeaderLayout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -23,6 +23,9 @@
             android:layout_height="2dp"
             android:background="@color/black"
             android:layout_below="@+id/expenseHeaderLayout"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
             />
 	    <TextView
 	    	android:id="@+id/expenseDayOfWeekTextView"
@@ -31,6 +34,8 @@
 	    	android:textSize="@dimen/row_uptitle_size"
 	        android:text="Thursday"
 	        android:textColor="@color/black"
+	        android:layout_below="@+id/groupDivider"
+	        android:layout_toLeftOf="@+id/dailyTotal"
 	        />
 	
 	    <TextView
@@ -39,8 +44,22 @@
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/row_text_size"
             android:textColor="@color/black"
-	        android:text="13 September 2013" />
-    </LinearLayout>
+	        android:text="13 September 2013"
+	        android:layout_below="@+id/expenseDayOfWeekTextView"
+	        android:layout_alignLeft="@+id/expenseDayOfWeekTextView"
+	        android:layout_alignRight="@+id/expenseDayOfWeekTextView"
+	        />
+	    <TextView
+	    	android:id="@+id/dailyTotal"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:layout_alignBottom="@+id/expenseDateTextView"
+	    	android:layout_alignParentRight="true"
+	    	android:textColor="@color/blue"
+	    	android:text="40.00"
+            android:textSize="@dimen/row_text_size"
+	    	/>
+    </RelativeLayout>
 
 	<!-- Middle divider - Section divider -->
 	<View

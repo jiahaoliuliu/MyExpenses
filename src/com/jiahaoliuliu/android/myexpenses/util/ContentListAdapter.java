@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jiahaoliuliu.android.myexpenses.R;
@@ -65,7 +67,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 			TextView expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
 			expenseDateTV.setText(dateFormatter.format(date));
 		} else {
-			LinearLayout rowHeaderLayout = (LinearLayout)convertView.findViewById(R.id.expenseHeaderLayout);
+			RelativeLayout rowHeaderLayout = (RelativeLayout)convertView.findViewById(R.id.expenseHeaderLayout);
 			rowHeaderLayout.setVisibility(View.GONE);
 		}
 		TextView expenseHourTV = (TextView)convertView.findViewById(R.id.expenseHoursTextView);
