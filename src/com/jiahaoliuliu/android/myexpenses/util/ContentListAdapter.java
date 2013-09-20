@@ -54,6 +54,11 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		Date date = expenseList.get(position).getDate();
 
 		if (isNewGroup(position)) {
+			// Remove the upper divider if it is in the first position
+			if (position == 0) {
+				View upperDivider = (View)convertView.findViewById(R.id.groupDivider);
+				upperDivider.setVisibility(View.GONE);
+			}
 			TextView expenseDayOfWeekTV = (TextView)convertView.findViewById(R.id.expenseDayOfWeekTextView);
 			expenseDayOfWeekTV.setText(dayOfWeekFormatter.format(date));
 
