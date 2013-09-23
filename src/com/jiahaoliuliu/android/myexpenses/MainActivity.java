@@ -61,6 +61,17 @@ public class MainActivity extends SherlockFragmentActivity {
 	private static final int MENU_SAVE_BUTTON_ID = 10001;
 	private static final int MENU_REMOVE_BUTTON_ID = 10002;
 
+	// The list of errors returned
+	public enum OperationResult {
+		CORRECT, CORRECT_DATA_INTEGROUS,
+		
+		// Error from the main activity
+		ERROR_DATA_EMPTY,
+		
+		// Errors from the saved data, it need to be refreshed
+		ERROR_QUANTITY_INCORRECT, ERROR_DATA_NOT_EXISTS, ERROR_DATA_NOT_INTEGROUS, ERROR_ADDING_INCORRECT, ERROR_REMOVING_INCORRECT;
+	}
+
 	// Variables
 	private DrawerLayout mDrawerLayout;
 	private LinearLayout mLeftLinearDrawer;
