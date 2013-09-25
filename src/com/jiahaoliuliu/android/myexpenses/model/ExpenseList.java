@@ -85,10 +85,10 @@ public class ExpenseList implements Cloneable {
 
 		subTotalSum -= expenseToBeRemoved.getQuantity();
 		Expense expenseRemoved = expenseMap.remove(expenseToBeRemoved.get_id());
-		if (!expenseRemoved.equals(expenseToBeRemoved)) {
+		if (!expenseToBeRemoved.equals(expenseRemoved)) {
 			Log.e(LOG_TAG, "Error removing the expense. The removed expense does not match with the expense to be removed " +
 					"\nExpense to be removed: " + expenseToBeRemoved.toString() + 
-					"\nExpense removed:       " + expenseRemoved.toString());
+					"\nExpense removed:       " + expenseRemoved);
 			return OperationResult.ERROR_REMOVING_INCORRECT;
 		}
 

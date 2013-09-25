@@ -653,7 +653,20 @@ public class MainActivity extends SherlockFragmentActivity {
 
     	Log.v(LOG_TAG, "Adding new expense to the list");
     	Log.v(LOG_TAG, "\t" + newExpense.toString());
-    	// 1. Expense list
+		// 1. Database
+    	// The first one must be the database in order to create the correct id of the expense
+		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
+			Log.e(LOG_TAG, "Error inserting the expense to the database");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.add_new_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+		}
+		
+    	// 2. Expense list
+		// Once the expense id has been created, then it can be added to the expense list
     	OperationResult resultAddExpense = expenseListTotal.addExpense(newExpense);
 		if (resultAddExpense != OperationResult.CORRECT && resultAddExpense != OperationResult.CORRECT_DATA_INTEGROUS) {
 			Log.e(LOG_TAG, "Error adding a new expense to the list layout");
@@ -665,17 +678,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
 		}
 
-		// 2. Database
-		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
-			Log.e(LOG_TAG, "Error inserting the expense to the database");
-    		Toast.makeText(
-    				context,
-    				getResources().getString(R.string.add_new_expense_wrongly),
-    				Toast.LENGTH_LONG
-    				).show();
-			return false;
-		}
-		
 		// 3. Total
 		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List Adapter
