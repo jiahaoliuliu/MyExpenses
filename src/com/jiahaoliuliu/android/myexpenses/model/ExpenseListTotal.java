@@ -1,14 +1,15 @@
 package com.jiahaoliuliu.android.myexpenses.model;
 
-import com.jiahaoliuliu.android.myexpenses.MainActivity.OperationResult;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 
-import android.content.Context;
 import android.util.Log;
+
+import com.jiahaoliuliu.android.myexpenses.MainActivity.OperationResult;
 
 public class ExpenseListTotal {
 
@@ -108,8 +109,8 @@ public class ExpenseListTotal {
 		}
 		
 		OperationResult removeExpenseResult = expenseList.removeExpense(expenseToBeRemoved);
-		if (removeExpenseResult != OperationResult.CORRECT) {
-			Log.e(LOG_TAG, "Error adding result to the expense list.");
+		if (removeExpenseResult != OperationResult.CORRECT && removeExpenseResult != OperationResult.CORRECT_DATA_INTEGROUS) {
+			Log.e(LOG_TAG, "Error removing result to the expense list.");
 			return removeExpenseResult;
 		}
 
@@ -117,7 +118,7 @@ public class ExpenseListTotal {
 			expenses.remove(key);
 			expensesKeysSorted.remove(expensesKeysSorted.indexOf(Integer.valueOf(key)));
 		}
-		
+
 		return periodicallyIntegrityCheck();
 	}
 	
@@ -129,7 +130,8 @@ public class ExpenseListTotal {
 		}
 		
 		OperationResult removingExpenseResult = removeExpense(oldExpense);
-		if (removingExpenseResult != OperationResult.CORRECT) {
+		if (removingExpenseResult != OperationResult.CORRECT && removingExpenseResult != OperationResult.CORRECT_DATA_INTEGROUS) {
+			Log.e(LOG_TAG, "Error updating the expense. The old expense cannot be removed. " + removingExpenseResult.toString());
 			return removingExpenseResult;
 		}
 		
@@ -208,6 +210,25 @@ public class ExpenseListTotal {
 	private OperationResult checkIntegrity() {
 		// TODO: Implement it
 		return OperationResult.CORRECT_DATA_INTEGROUS;
+	}
+
+	public boolean isEmpty() {
+		return totalExpenses == 0;
+	}
+	
+	public String getDailyTotal(Date date) {
+		if (date == null) {
+			Log.e(LOG_TAG, "Error getting the daily total. The date is null");
+			return (dec.format(0.0));
+		}
+		
+		ExpenseList expenseList = expenses.get(formatter.format(date));
+		if (expenseList == null) {
+			Log.e(LOG_TAG, "Error getting the daily total. The expense list does not exist");
+			return (dec.format(0.0));
+		}
+		
+		return dec.format(expenseList.getSubTotalSum());
 	}
 
 	public int getTotalExpenses() {
@@ -308,11 +329,10 @@ public class ExpenseListTotal {
 
 	@Override
 	public String toString() {
-		return "ExpenseListTotal [formatter=" + formatter + ", dec=" + dec
-				+ ", totalExpenses=" + totalExpenses + ", totalSum=" + totalSum
-				+ ", expenses=" + expenses + ", expensesKeysSorted="
-				+ expensesKeysSorted + ", totalOperations=" + totalOperations
-				+ "]";
+		return "ExpenseListTotal [ totalExpenses=" + totalExpenses + ", totalSum=" + totalSum
+				+ ", totalOperations=" + totalOperations + "\n\t"
+				+ ", expenses=" + expenses + "\n\t"
+				+ ", expensesKeysSorted=" + expensesKeysSorted + "]";
 	}
 
 }

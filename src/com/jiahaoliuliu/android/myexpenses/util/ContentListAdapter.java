@@ -19,25 +19,23 @@ import android.widget.TextView;
 
 import com.jiahaoliuliu.android.myexpenses.R;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
+import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 
 public class ContentListAdapter extends ArrayAdapter<String> {
 	
 	private Context context;
-	private List<Expense> expenseList;
+	private ExpenseListTotal expenseListTotal;
 	private SimpleDateFormat dayOfWeekFormatter;
 	private SimpleDateFormat dateFormatter;
 	private SimpleDateFormat hourFormtter;
-	//private ViewHolder viewHolder;
 	// Set the number of decimals in the editText
 	private DecimalFormat dec = new DecimalFormat("0.00");
-	// The date of the last group to determine if new group should be created or not
-	private Date lastGroupDate = null;
 	private LayoutInflater inflater;
 
-	public ContentListAdapter(Context context, int resource, List<Expense> expenseList) {
+	public ContentListAdapter(Context context, int resource, ExpenseListTotal expenseListTotal) {
 		super(context, resource);
 		this.context = context;
-		this.expenseList = expenseList;
+		this.expenseListTotal = expenseListTotal;
 		Locale currentLocale = context.getResources().getConfiguration().locale;
 		dayOfWeekFormatter = new SimpleDateFormat("EEEE", currentLocale);
 		dateFormatter = new SimpleDateFormat("dd MMMM yyyy", currentLocale);
@@ -47,65 +45,43 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 	
 	@Override
 	public int getCount() {
-		return this.expenseList.size();
+		return this.expenseListTotal.getTotalExpenses();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
-		Date date = expenseList.get(position).getDate();
-
-		if (isNewGroup(position)) {
+		Expense expense = expenseListTotal.getExpense(position);
+		Date expenseDate = expense.getDate();
+		
+		if (expenseListTotal.isHeader(expense)) {
 			// Remove the upper divider if it is in the first position
 			if (position == 0) {
 				View upperDivider = (View)convertView.findViewById(R.id.groupDivider);
 				upperDivider.setVisibility(View.GONE);
 			}
 			TextView expenseDayOfWeekTV = (TextView)convertView.findViewById(R.id.expenseDayOfWeekTextView);
-			expenseDayOfWeekTV.setText(dayOfWeekFormatter.format(date));
+			expenseDayOfWeekTV.setText(dayOfWeekFormatter.format(expenseDate));
 
 			TextView expenseDateTV = (TextView)convertView.findViewById(R.id.expenseDateTextView);
-			expenseDateTV.setText(dateFormatter.format(date));
+			expenseDateTV.setText(dateFormatter.format(expenseDate));
+			
+			TextView dailyTotalTV = (TextView)convertView.findViewById(R.id.dailyTotal);
+			dailyTotalTV.setText(expenseListTotal.getDailyTotal(expenseDate));
 		} else {
 			RelativeLayout rowHeaderLayout = (RelativeLayout)convertView.findViewById(R.id.expenseHeaderLayout);
 			rowHeaderLayout.setVisibility(View.GONE);
 		}
 		TextView expenseHourTV = (TextView)convertView.findViewById(R.id.expenseHoursTextView);
-		expenseHourTV.setText(hourFormtter.format(date));
+		expenseHourTV.setText(hourFormtter.format(expenseDate));
 
 		TextView expenseCommentTV = (TextView)convertView.findViewById(R.id.expenseCommentTextView);
-		expenseCommentTV.setText(expenseList.get(position).getComment());
+		expenseCommentTV.setText(expense.getComment());
 
 		TextView expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
-		expenseQuantityTV.setText(String.valueOf(dec.format(expenseList.get(position).getQuantity()).replace(",", ".")));
+		expenseQuantityTV.setText(String.valueOf(dec.format(expense.getQuantity()).replace(",", ".")));
 
 		return convertView;
 	}
 	
-	 private boolean isNewGroup(int position) {
-		 // If the group has never been created, create it (and set the date)
-		 if (lastGroupDate == null) {
-			 lastGroupDate = expenseList.get(position).getDate();
-			 return true;
-		 }
-
-         // Compare date values, ignore time values
-         Calendar calThis = Calendar.getInstance(context.getResources().getConfiguration().locale);
-         Date thisDate = expenseList.get(position).getDate();
-         calThis.setTime(thisDate);
-
-         Calendar calPrev = Calendar.getInstance(context.getResources().getConfiguration().locale);
-         calPrev.setTime(lastGroupDate);
-
-         int nDayThis = calThis.get(Calendar.DAY_OF_YEAR);
-         int nDayPrev = calPrev.get(Calendar.DAY_OF_YEAR);
-
-         if (nDayThis != nDayPrev || calThis.get(Calendar.YEAR) != calPrev.get(Calendar.YEAR)) {
-        	 lastGroupDate = thisDate;
-             return true;
-         }
-
-		 return false;
-     }
-
 }

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import android.util.Log;
+
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.MainActivity.OperationResult;
 
-import android.util.Log;
 
 // The database should return a list of this
 public class ExpenseList implements Cloneable {
@@ -32,13 +33,15 @@ public class ExpenseList implements Cloneable {
 		subTotalSum = 0.0;
 		expenseArray = new ArrayList<Expense>();
 		expenseMap = new HashMap<Integer, Expense>();
+		comparator = new ExpenseComparator();
 	}
 
-	public ExpenseList(int subTotalSum, ArrayList<Expense> expenseArray, HashMap<Integer, Expense> expenseMap) {
+	public ExpenseList(int subTotalSum, ArrayList<Expense> expenseArray, HashMap<Integer, Expense> expenseMap, ExpenseComparator comparator) {
 		super();
 		this.expenseArray = expenseArray;
 		this.subTotalSum = subTotalSum;
 		this.expenseMap = expenseMap;
+		this.comparator = comparator;
 	}
 
 	// The data cannot be empty
@@ -53,14 +56,8 @@ public class ExpenseList implements Cloneable {
 
 		subTotalSum += expenseToBeAdded.getQuantity();
 
-		Expense expenseAdded = expenseMap.put(expenseToBeAdded.get_id(), expenseToBeAdded);
-		if (!expenseAdded.equals(expenseToBeAdded)) {
-			Log.e(LOG_TAG, "Error adding expense. The added expense does not match with the expense to be added " +
-					"\nExpense to be added: " + expenseToBeAdded.toString() +
-					"\nExpense added      : " + expenseAdded.toString());
-			return OperationResult.ERROR_ADDING_INCORRECT;
-		}
-		
+		expenseMap.put(expenseToBeAdded.get_id(), expenseToBeAdded);
+
 		// Add the data to expense array and sort it
 		if (!expenseArray.add(expenseToBeAdded)) {
 			Log.e(LOG_TAG, "Error adding the expense to the list.");
@@ -77,7 +74,7 @@ public class ExpenseList implements Cloneable {
 			return OperationResult.ERROR_DATA_EMPTY;
 		}
 
-		Log.v(LOG_TAG, "Removing the follow expense from the list total: \n" +
+		Log.v(LOG_TAG, "Removing the follow expense from the list: \n" +
 				expenseToBeRemoved.toString());
 
 		if (subTotalSum < expenseToBeRemoved.getQuantity()) {
@@ -237,8 +234,9 @@ public class ExpenseList implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "ExpenseList [subTotalSum=" + subTotalSum + ", expenseArray="
-				+ expenseArray + ", expenseMap=" + expenseMap + "]";
+		return "ExpenseList [subTotalSum=" + subTotalSum + "\n\t\t"
+				+ ", expenseArray=" + expenseArray + "\n\t\t"
+				+ ", expenseMap=" + expenseMap + "]";
 	}
 
 }

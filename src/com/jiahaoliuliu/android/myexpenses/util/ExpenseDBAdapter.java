@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
+import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -147,12 +148,10 @@ public class ExpenseDBAdapter {
 	/*
 	 * Returns all the expenses from the database
 	 */
-	public List<Expense> getAllExpenses() {
+	public ExpenseListTotal getAllExpenses() {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
-
-		List<Expense> allEnergyConsumption = new ArrayList<Expense>();
 
 		Cursor mCursor = 
 				database.query(DATABASE_TABLE,
@@ -166,9 +165,9 @@ public class ExpenseDBAdapter {
 				                null,
 				                null,
 				                null);
-		allEnergyConsumption = getAllExpensesFromCursor(mCursor);
+		ExpenseListTotal expenseListTotal = getAllExpensesFromCursor(mCursor);
 		mCursor.close();
-		return allEnergyConsumption;
+		return expenseListTotal;
 	}
 	
 	public class ExpenseDbHelper extends SQLiteOpenHelper{
@@ -270,16 +269,16 @@ public class ExpenseDBAdapter {
 		return result;
 	}
 
-	private List<Expense> getAllExpensesFromCursor(Cursor mCursor) {
-		List<Expense> allExpenses = new ArrayList<Expense>();
+	private ExpenseListTotal getAllExpensesFromCursor(Cursor mCursor) {
+		ExpenseListTotal expenseListTotal = new ExpenseListTotal();
 		
 		int count = mCursor.getCount();
 		for (int i = 0; i < count; i++) {
 			Expense tempExpense = getExpenseFromCursor(mCursor, i);
-			allExpenses.add(tempExpense);
+			expenseListTotal.addExpense(tempExpense);
 		}
 		
-		return allExpenses;
+		return expenseListTotal;
 	}
 
 }

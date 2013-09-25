@@ -13,6 +13,7 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
+import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
@@ -101,7 +102,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	// For the soft input
 	private InputMethodManager imm;
 
-	private List<Expense> expenseList;
+	private ExpenseListTotal expenseListTotal;
 
 	// Layouts
 	//  Left Drawer
@@ -193,8 +194,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Create the variables
 		expenseDBAdapter = new ExpenseDBAdapter(context);
-		expenseList = expenseDBAdapter.getAllExpenses();
-		Collections.sort(expenseList, new ExpenseComparator());
+		expenseListTotal = expenseDBAdapter.getAllExpenses();
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -242,7 +242,7 @@ public class MainActivity extends SherlockFragmentActivity {
 					// Set the title on the action when drawer open
 					getSupportActionBar().setTitle(mRightDrawerTitle);
 
-					if (expenseList.isEmpty()) {
+					if (expenseListTotal.isEmpty()) {
 						// Show the no Expense Found layout
 						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
 						expenseFoundScrollLayout.setVisibility(View.GONE);
@@ -254,7 +254,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 						// If the user has selected any position
 						if (contentPositionSelected < 0) {
-							contentPositionSelected = expenseList.size() -1;
+							contentPositionSelected = expenseListTotal.getTotalExpenses() -1;
 							// TODO: Check if the last element clicked on the list has been saved
 							// if so, use it
 							// Otherwise, do get the last element in the queue (The newest)
@@ -262,7 +262,7 @@ public class MainActivity extends SherlockFragmentActivity {
 						}
 
 						// Clone the expense to be edited
-						expenseToBeEdited = expenseList.get(contentPositionSelected);
+						expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
 						expenseToBeEditedCloned = expenseToBeEdited.clone();
 						if (expenseToBeEditedCloned == null) {
 							Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
@@ -359,8 +359,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Draw the layout
 		showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
-		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
-		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseList);
+		totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseListTotal);
 		expenseListView.setAdapter(expenseListAdapter);
 
 		// Layout logic
@@ -506,7 +506,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			Log.v(LOG_TAG, "Date changed");
 			Log.v(LOG_TAG, "Cloned: " + expenseToBeEditedCloned.toString());
 			Log.v(LOG_TAG, "Original: " + expenseToBeEdited.toString());
-			printExpenseList();
 
 	    	if (updateExpense(expenseToBeEditedCloned)) {
 	    		// Close the drawer
@@ -542,16 +541,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		mTitle = title;
 		getSupportActionBar().setTitle(mTitle);
 	}*/
-
-	private double calculateTotalExpense() {
-		double result = 0.0;
-		for (Expense expense: expenseList) {
-			result += expense.getQuantity();
-		}
-
-		return result;
-	}
-	
 
 	private void addNewExpense() {
 		// If the user has not entered any data
@@ -665,7 +654,8 @@ public class MainActivity extends SherlockFragmentActivity {
     	Log.v(LOG_TAG, "Adding new expense to the list");
     	Log.v(LOG_TAG, "\t" + newExpense.toString());
     	// 1. Expense list
-		if (!expenseList.add(newExpense)) {
+    	OperationResult resultAddExpense = expenseListTotal.addExpense(newExpense);
+		if (resultAddExpense != OperationResult.CORRECT && resultAddExpense != OperationResult.CORRECT_DATA_INTEGROUS) {
 			Log.e(LOG_TAG, "Error adding a new expense to the list layout");
     		Toast.makeText(
     				context,
@@ -675,7 +665,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
 		}
 
-		Collections.sort(expenseList, new ExpenseComparator());
 		// 2. Database
 		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
 			Log.e(LOG_TAG, "Error inserting the expense to the database");
@@ -688,7 +677,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 		
 		// 3. Total
-		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List Adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct Message
@@ -726,7 +715,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		}
 
     	// 2. Expense list
-		if (!expenseList.remove(expense)) {
+		OperationResult removeResult = expenseListTotal.removeExpense(expense);
+		if (removeResult != OperationResult.CORRECT && removeResult != OperationResult.CORRECT_DATA_INTEGROUS) {
 			Log.e(LOG_TAG, "Error removing the expense from the list layout");
     		Toast.makeText(
     				context,
@@ -735,10 +725,9 @@ public class MainActivity extends SherlockFragmentActivity {
     				).show();
 			return false;
 		}
-		Collections.sort(expenseList, new ExpenseComparator());
 
 		// 3. Total
-		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct message
@@ -774,14 +763,16 @@ public class MainActivity extends SherlockFragmentActivity {
     	}
 
     	// 1. Expense list
-    	Log.v(LOG_TAG, "Expense to be removed: " + expenseToBeEdited.toString());
-    	Log.v(LOG_TAG, "Expense to be added: " + expenseEdited.toString());
-    	expenseList.remove(expenseToBeEdited);
-    	expenseList.add(expenseEdited);
-    	printExpenseList();
-    	Log.v(LOG_TAG, "Expense list:");
-    	// Sort the content
-    	Collections.sort(expenseList, new ExpenseComparator());
+    	OperationResult updateResult = expenseListTotal.updateExpense(expenseToBeEdited, expenseEdited);
+    	if (updateResult != OperationResult.CORRECT && updateResult != OperationResult.CORRECT_DATA_INTEGROUS) {
+			Log.e(LOG_TAG, "Error updating the expense from the list layout");
+    		Toast.makeText(
+    				context,
+    				getResources().getString(R.string.update_expense_wrongly),
+    				Toast.LENGTH_LONG
+    				).show();
+			return false;
+    	}
     	
     	// 2. Database
     	if (!expenseDBAdapter.updateExpense(expenseEdited)) {
@@ -794,7 +785,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		return false;
     	}
 		// 3. Total
-		totalExpenseTV.setText(String.valueOf(dec.format(calculateTotalExpense()).replace(",", ".")));
+		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct message
@@ -804,11 +795,5 @@ public class MainActivity extends SherlockFragmentActivity {
 				Toast.LENGTH_LONG
 				).show();
     	return true;
-    }
-    
-    private void printExpenseList() {
-    	for (Expense expense: expenseList) {
-    		Log.v(LOG_TAG, expense.toString());
-    	}
     }
 }
