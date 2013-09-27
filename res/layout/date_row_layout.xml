@@ -75,6 +75,7 @@
 		android:layout_alignParentLeft="true"
         android:layout_below="@+id/middleDivider"
         android:layout_marginLeft="5dp"
+        android:background="@drawable/row_background"
 		>
 	    <TextView
 	        android:id="@+id/expenseHoursTextView"
