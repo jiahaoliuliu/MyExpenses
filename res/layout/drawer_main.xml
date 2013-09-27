@@ -21,21 +21,23 @@
 	    	/>
 
         <RelativeLayout
+        	android:id="@+id/emptyView"
         	android:layout_width="match_parent"
         	android:layout_height="match_parent"
+        	android:background="@color/blue_deep"
+            android:visibility="gone"
         	>
             <TextView
-		     	android:id="@+id/emptyView"
+		     	android:id="@+id/emptyTextView"
 		     	android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_centerInParent="true"
 		        android:text="@string/warning_empty_list"
-		        android:visibility="gone"
-		        android:textColor="@color/black"
 		        android:textSize="@dimen/warning_message_text_size"
 		        android:gravity="center"
 		        android:paddingLeft="@dimen/activity_horizontal_margin"
 		        android:paddingRight="@dimen/activity_horizontal_margin"
+		        android:textColor="@color/white"
 		        />
         </RelativeLayout>
 	</FrameLayout>

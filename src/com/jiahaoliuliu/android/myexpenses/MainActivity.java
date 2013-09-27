@@ -164,7 +164,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		//  Main layout
 		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 		expenseListView = (ListView)findViewById(R.id.contentListView);
-		TextView emptyView = (TextView)findViewById(R.id.emptyView);
+		RelativeLayout emptyView = (RelativeLayout)findViewById(R.id.emptyView);
 		expenseListView.setEmptyView(emptyView);
 		
 		View listHeaderView = getLayoutInflater().inflate(R.layout.list_header_layout, null);
