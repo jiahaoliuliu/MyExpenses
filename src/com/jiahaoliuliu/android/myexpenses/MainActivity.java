@@ -225,12 +225,12 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 					// Hide soft windows
 					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
+					updateRightDrawer();
 				// Right drawer
 				} else {
-					// Restore the content position
-					contentPositionSelected = -1;
 					// Hide soft windows
 					imm.hideSoftInputFromWindow(addNewExpenseEditText.getWindowToken(), 0);
+					updateRightDrawer();
 				}
 			}
 			
@@ -247,7 +247,10 @@ public class MainActivity extends SherlockFragmentActivity {
 				} else {
 					// Set the title on the action when drawer open
 					getSupportActionBar().setTitle(mRightDrawerTitle);
-					createEditExpenseMenu();
+					// Create the edit expense menu when there is something to show
+					if (!expenseListTotal.isEmpty()) {
+						createEditExpenseMenu();
+					}
 				}
 			}
 		};
@@ -422,6 +425,9 @@ public class MainActivity extends SherlockFragmentActivity {
 			
 			// Comment
 			commentET.setText(expenseToBeEdited.getComment());
+			
+			// Restart the right drawer
+			contentPositionSelected = -1;
 		}
 	}
 
@@ -789,8 +795,6 @@ public class MainActivity extends SherlockFragmentActivity {
 				).show();
 
 		Log.v(LOG_TAG, "After removing, the number total of expenses is " + expenseListTotal.getTotalExpenses());
-		// After removing the content position must be restarted
-		contentPositionSelected = -1;
 		updateRightDrawer();
 
 		return true;
