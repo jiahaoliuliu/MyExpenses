@@ -95,7 +95,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	private boolean showAddNewExpenseAtBeginning;
 
 	private Expense expenseToBeEdited;
-	private Expense expenseToBeEditedCloned;
+	private Expense expenseEdited;
 	private Calendar calendar;
 	private AlertDialog removeExpenseAlertDialog;
 
@@ -195,6 +195,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Create the variables
 		expenseDBAdapter = new ExpenseDBAdapter(context);
 		expenseListTotal = expenseDBAdapter.getAllExpenses();
+		calendar = Calendar.getInstance();
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -242,107 +243,8 @@ public class MainActivity extends SherlockFragmentActivity {
 					// Set the title on the action when drawer open
 					getSupportActionBar().setTitle(mRightDrawerTitle);
 
-					if (expenseListTotal.isEmpty()) {
-						// Show the no Expense Found layout
-						noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
-						expenseFoundScrollLayout.setVisibility(View.GONE);
-					} else {
-						noExpenseFoundRelativeLayout.setVisibility(View.GONE);
-						expenseFoundScrollLayout.setVisibility(View.VISIBLE);
-
-						createEditExpenseMenu();
-
-						// If the user has selected any position
-						if (contentPositionSelected < 0) {
-							contentPositionSelected = expenseListTotal.getTotalExpenses() -1;
-							// TODO: Check if the last element clicked on the list has been saved
-							// if so, use it
-							// Otherwise, do get the last element in the queue (The newest)
-							// TODO: Create a better queue to select the one of the last edition.(Rated?)
-						}
-
-						// Clone the expense to be edited
-						expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
-						expenseToBeEditedCloned = expenseToBeEdited.clone();
-						if (expenseToBeEditedCloned == null) {
-							Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
-							return;
-						}
-
-						// Date
-						Date dateToBeEdited = expenseToBeEditedCloned.getDate();
-						calendar = Calendar.getInstance();
-						calendar.setTime(dateToBeEdited);
-
-						dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
-						dateButton.setOnClickListener(rightDrawerOnClickListener);
-						dateButton.setText(dateFormatter.format(dateToBeEdited));
-						datePicker.init(calendar.get(Calendar.YEAR),
-								calendar.get(Calendar.MONTH),
-								calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
-									
-									@Override
-									public void onDateChanged(DatePicker view, int year, int monthOfYear,
-											int dayOfMonth) {
-										// Update the date in the expense
-										calendar.set(year, monthOfYear, dayOfMonth);
-										// Update the display
-										dateButton.setText(
-								                new StringBuilder()
-								                        // Month is 0 based so add 1
-								                		.append(dateFormatter.format(calendar.getTime())));
-										expenseToBeEditedCloned.setDate(calendar.getTime());
-									}
-								});
-						
-						// Time
-						timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
-						timeButton.setOnClickListener(rightDrawerOnClickListener);
-						timeButton.setText(timeFormatter.format(dateToBeEdited));
-						timePicker.setIs24HourView(true);
-						timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
-						timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
-						timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
-							
-							@Override
-							public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-								timeButton.setText(
-										new StringBuilder()
-											.append(pad(hourOfDay)).append(":")
-											.append(pad(minute))
-										);
-								calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-								calendar.set(Calendar.MINUTE, minute);
-								expenseToBeEditedCloned.setDate(calendar.getTime());
-							}
-						});
-						
-						// Quantity.
-						quantityET.setText(String.valueOf(expenseToBeEditedCloned.getQuantity()));
-
-						//Format the quantity after user editing
-						quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
-							
-							@Override
-							public void onFocusChange(View v, boolean hasFocus) {
-								if (!hasFocus) {
-									String quantityStringFormatted = "0.00";
-									String quantityString = quantityET.getText().toString();
-									if (quantityString != null && !quantityString.equals("")) {
-										quantityStringFormatted =
-											dec.format(
-													Double.valueOf(
-															quantityET.getText().toString()
-															)).replace(",", ".");
-									}
-
-									quantityET.setText(quantityStringFormatted);
-								}
-							}
-						});
-						
-						// Comment
-						commentET.setText(expenseToBeEditedCloned.getComment());
+					if (!expenseListTotal.isEmpty()) {
+						showExpenseToBeEdited();
 					}
 				}
 			}
@@ -420,6 +322,96 @@ public class MainActivity extends SherlockFragmentActivity {
 		});
 		
 		removeExpenseAlertDialog = createRemoveAlertDialog();
+	}
+
+	private void showExpenseToBeEdited() {
+		// Hide the no Expense found layout
+		// Show the expense found layout
+		if (noExpenseFoundRelativeLayout.getVisibility() != View.GONE) {
+			noExpenseFoundRelativeLayout.setVisibility(View.GONE);
+			expenseFoundScrollLayout.setVisibility(View.VISIBLE);
+		}
+
+		createEditExpenseMenu();
+
+		// If the user has selected any position
+		if (contentPositionSelected < 0) {
+			contentPositionSelected = expenseListTotal.getTotalExpenses() -1;
+		}
+
+		// Clone the expense to be edited
+		expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
+		// Date
+		Date dateToBeEdited = expenseToBeEdited.getDate();
+		calendar.setTime(dateToBeEdited);
+
+		dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
+		dateButton.setOnClickListener(rightDrawerOnClickListener);
+		dateButton.setText(dateFormatter.format(dateToBeEdited));
+		datePicker.init(calendar.get(Calendar.YEAR),
+				calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
+					
+					@Override
+					public void onDateChanged(DatePicker view, int year, int monthOfYear,
+							int dayOfMonth) {
+						// Update the date in the expense
+						calendar.set(year, monthOfYear, dayOfMonth);
+						// Update the display
+						dateButton.setText(
+				                new StringBuilder()
+				                        // Month is 0 based so add 1
+				                		.append(dateFormatter.format(calendar.getTime())));
+					}
+				});
+
+		// Time
+		timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
+		timeButton.setOnClickListener(rightDrawerOnClickListener);
+		timeButton.setText(timeFormatter.format(dateToBeEdited));
+		timePicker.setIs24HourView(true);
+		timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+		timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+			
+			@Override
+			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+				timeButton.setText(
+						new StringBuilder()
+							.append(pad(hourOfDay)).append(":")
+							.append(pad(minute))
+						);
+				calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+				calendar.set(Calendar.MINUTE, minute);
+			}
+		});
+		
+		// Quantity.
+		quantityET.setText(String.valueOf(expenseToBeEdited.getQuantity()));
+
+		//Format the quantity after user editing
+		quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					String quantityStringFormatted = "0.00";
+					String quantityString = quantityET.getText().toString();
+					if (quantityString != null && !quantityString.equals("")) {
+						quantityStringFormatted =
+							dec.format(
+									Double.valueOf(
+											quantityET.getText().toString()
+											)).replace(",", ".");
+					}
+
+					quantityET.setText(quantityStringFormatted);
+				}
+			}
+		});
+		
+		// Comment
+		commentET.setText(expenseToBeEdited.getComment());
 	}
 
 	private View.OnClickListener rightDrawerOnClickListener = new View.OnClickListener() {
@@ -501,13 +493,19 @@ public class MainActivity extends SherlockFragmentActivity {
 				mDrawerLayout.openDrawer(mRightLinearDrawer);
 			}
 		} else if (item.getItemId() == MENU_SAVE_BUTTON_ID) {
-	    	expenseToBeEditedCloned.setQuantity(Double.valueOf(quantityET.getText().toString()));
-	    	expenseToBeEditedCloned.setComment(commentET.getText().toString());
+			expenseEdited = expenseToBeEdited.clone();
+			if (expenseEdited == null) {
+				Log.e(LOG_TAG, "Error cloning the expense to be edited. Returned null.");
+				return true;
+			}
+			expenseEdited.setDate(calendar.getTime());
+			expenseEdited.setQuantity(Double.valueOf(quantityET.getText().toString()));
+			expenseEdited.setComment(commentET.getText().toString());
 			Log.v(LOG_TAG, "Date changed");
-			Log.v(LOG_TAG, "Cloned: " + expenseToBeEditedCloned.toString());
+			Log.v(LOG_TAG, "Cloned: " + expenseEdited.toString());
 			Log.v(LOG_TAG, "Original: " + expenseToBeEdited.toString());
 
-	    	if (updateExpense(expenseToBeEditedCloned)) {
+	    	if (updateExpense(expenseEdited)) {
 	    		// Close the drawer
 	    		if (mDrawerLayout.isDrawerOpen(mRightLinearDrawer)) {
 	    			mDrawerLayout.closeDrawer(mRightLinearDrawer);
@@ -739,6 +737,12 @@ public class MainActivity extends SherlockFragmentActivity {
 				Toast.LENGTH_LONG
 				).show();
 
+		// Change the view of the right panel
+		if (expenseListTotal.isEmpty()) {
+			// Show the no Expense Found layout
+			noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
+			expenseFoundScrollLayout.setVisibility(View.GONE);
+		}
 		return true;
     }
     

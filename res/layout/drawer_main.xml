@@ -115,7 +115,6 @@
         	android:id="@+id/noExpenseFoundRelativeLayout"
         	android:layout_width="match_parent"
         	android:layout_height="match_parent"
-        	android:visibility="gone"
         	>
         	<TextView
         		android:layout_width="wrap_content"
@@ -131,6 +130,7 @@
 		    android:id="@+id/expenseScrollView"
 		    android:layout_width="match_parent"
 		    android:layout_height="match_parent"
+		    android:visibility="gone"
 		    >
 		    <RelativeLayout
 		        android:id="@+id/expenseRelativeLayout"
