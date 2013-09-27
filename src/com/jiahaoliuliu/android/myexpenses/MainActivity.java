@@ -14,6 +14,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
+import com.jiahaoliuliu.android.myexpenses.util.Callback;
 import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
@@ -123,6 +124,10 @@ public class MainActivity extends SherlockFragmentActivity {
 	
 	// The action menu
 	private Menu actionBarMenu;
+	// The callback used to deal the small delay
+	// between when the app is created and when
+	// the menu is created
+	private Callback requestMenuCallback;
 
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
@@ -242,10 +247,7 @@ public class MainActivity extends SherlockFragmentActivity {
 				} else {
 					// Set the title on the action when drawer open
 					getSupportActionBar().setTitle(mRightDrawerTitle);
-
-					if (!expenseListTotal.isEmpty()) {
-						showExpenseToBeEdited();
-					}
+					createEditExpenseMenu();
 				}
 			}
 		};
@@ -313,6 +315,7 @@ public class MainActivity extends SherlockFragmentActivity {
 				// Save the variable
 				// The position starts from 1, and the list starts from 0
 				contentPositionSelected = position-1;
+				updateRightDrawer();
 				// Open right drawer
 				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
 					mDrawerLayout.closeDrawer(mLeftLinearDrawer);
@@ -322,96 +325,104 @@ public class MainActivity extends SherlockFragmentActivity {
 		});
 		
 		removeExpenseAlertDialog = createRemoveAlertDialog();
+		
+		// Update the view if there is already some data
+		updateRightDrawer();
 	}
 
-	private void showExpenseToBeEdited() {
-		// Hide the no Expense found layout
-		// Show the expense found layout
-		if (noExpenseFoundRelativeLayout.getVisibility() != View.GONE) {
+	private void updateRightDrawer() {
+		// Change the view of the right panel
+		if (expenseListTotal.isEmpty()) {
+			// Show the no Expense Found layout
+			noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
+			expenseFoundScrollLayout.setVisibility(View.GONE);
+		} else {
 			noExpenseFoundRelativeLayout.setVisibility(View.GONE);
 			expenseFoundScrollLayout.setVisibility(View.VISIBLE);
-		}
-
-		createEditExpenseMenu();
-
-		// If the user has selected any position
-		if (contentPositionSelected < 0) {
-			contentPositionSelected = expenseListTotal.getTotalExpenses() -1;
-		}
-
-		// Clone the expense to be edited
-		expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
-		// Date
-		Date dateToBeEdited = expenseToBeEdited.getDate();
-		calendar.setTime(dateToBeEdited);
-
-		dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
-		dateButton.setOnClickListener(rightDrawerOnClickListener);
-		dateButton.setText(dateFormatter.format(dateToBeEdited));
-		datePicker.init(calendar.get(Calendar.YEAR),
-				calendar.get(Calendar.MONTH),
-				calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
-					
-					@Override
-					public void onDateChanged(DatePicker view, int year, int monthOfYear,
-							int dayOfMonth) {
-						// Update the date in the expense
-						calendar.set(year, monthOfYear, dayOfMonth);
-						// Update the display
-						dateButton.setText(
-				                new StringBuilder()
-				                        // Month is 0 based so add 1
-				                		.append(dateFormatter.format(calendar.getTime())));
-					}
-				});
-
-		// Time
-		timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
-		timeButton.setOnClickListener(rightDrawerOnClickListener);
-		timeButton.setText(timeFormatter.format(dateToBeEdited));
-		timePicker.setIs24HourView(true);
-		timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
-		timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
-		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
-			
-			@Override
-			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-				timeButton.setText(
-						new StringBuilder()
-							.append(pad(hourOfDay)).append(":")
-							.append(pad(minute))
-						);
-				calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-				calendar.set(Calendar.MINUTE, minute);
+			// If the user has selected any position
+			if (contentPositionSelected < 0) {
+				contentPositionSelected = expenseListTotal.getTotalExpenses() - 1;
 			}
-		});
-		
-		// Quantity.
-		quantityET.setText(String.valueOf(expenseToBeEdited.getQuantity()));
-
-		//Format the quantity after user editing
-		quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
-			
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (!hasFocus) {
-					String quantityStringFormatted = "0.00";
-					String quantityString = quantityET.getText().toString();
-					if (quantityString != null && !quantityString.equals("")) {
-						quantityStringFormatted =
-							dec.format(
-									Double.valueOf(
-											quantityET.getText().toString()
-											)).replace(",", ".");
-					}
-
-					quantityET.setText(quantityStringFormatted);
+	
+			Log.v(LOG_TAG, "Getting the expense of the position " + contentPositionSelected);
+			// Clone the expense to be edited
+			expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
+			// Date
+			Date dateToBeEdited = expenseToBeEdited.getDate();
+			calendar.setTime(dateToBeEdited);
+	
+			dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
+			dateButton.setOnClickListener(rightDrawerOnClickListener);
+			dateButton.setText(dateFormatter.format(dateToBeEdited));
+			// Always shows the date picker and hide the time picker
+			datePicker.setVisibility(View.VISIBLE);
+			datePicker.init(calendar.get(Calendar.YEAR),
+					calendar.get(Calendar.MONTH),
+					calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
+						
+						@Override
+						public void onDateChanged(DatePicker view, int year, int monthOfYear,
+								int dayOfMonth) {
+							// Update the date in the expense
+							calendar.set(year, monthOfYear, dayOfMonth);
+							// Update the display
+							dateButton.setText(
+					                new StringBuilder()
+					                        // Month is 0 based so add 1
+					                		.append(dateFormatter.format(calendar.getTime())));
+						}
+					});
+	
+			// Time
+			timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
+			timeButton.setOnClickListener(rightDrawerOnClickListener);
+			timeButton.setText(timeFormatter.format(dateToBeEdited));
+			// Always hide the time picker
+			timePicker.setVisibility(View.GONE);
+			timePicker.setIs24HourView(true);
+			timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+			timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+			timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
+				
+				@Override
+				public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+					timeButton.setText(
+							new StringBuilder()
+								.append(pad(hourOfDay)).append(":")
+								.append(pad(minute))
+							);
+					calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+					calendar.set(Calendar.MINUTE, minute);
 				}
-			}
-		});
-		
-		// Comment
-		commentET.setText(expenseToBeEdited.getComment());
+			});
+			
+			// Quantity.
+			quantityET.setText(String.valueOf(expenseToBeEdited.getQuantity()));
+	
+			//Format the quantity after user editing
+			quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
+				
+				@Override
+				public void onFocusChange(View v, boolean hasFocus) {
+					if (!hasFocus) {
+						String quantityStringFormatted = "0.00";
+						String quantityString = quantityET.getText().toString();
+						if (quantityString != null && !quantityString.equals("")) {
+							quantityStringFormatted =
+								dec.format(
+										Double.valueOf(
+												quantityET.getText().toString()
+												)).replace(",", ".");
+						}
+	
+						quantityET.setText(quantityStringFormatted);
+					}
+				}
+			});
+			
+			// Comment
+			commentET.setText(expenseToBeEdited.getComment());
+		}
 	}
 
 	private View.OnClickListener rightDrawerOnClickListener = new View.OnClickListener() {
@@ -438,12 +449,34 @@ public class MainActivity extends SherlockFragmentActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+    	// The callback is used to deal the small delay when
+    	// the application creates and when teh option menu is
+    	// created.
     	actionBarMenu = menu;
-    	createMainMenu();
+    	if (requestMenuCallback != null) {
+    		requestMenuCallback.done();
+    	} else {
+    		createMainMenu();
+    	}
         return true;
     }
 
     private void createMainMenu() {
+    	if (actionBarMenu == null) {
+    		requestMenuCallback = new Callback() {
+				
+				@Override
+				public void done() {
+					createMainMenuAux();
+					requestMenuCallback = null;
+				}
+			};
+    	} else {
+    		createMainMenuAux();
+    	}
+    }
+
+    private void createMainMenuAux() {
     	actionBarMenu.clear();
 
     	actionBarMenu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
@@ -453,6 +486,21 @@ public class MainActivity extends SherlockFragmentActivity {
     }
 
     private void createEditExpenseMenu() {
+    	if (actionBarMenu == null) {
+    		requestMenuCallback = new Callback() {
+				
+				@Override
+				public void done() {
+					createEditExpenseMenuAux();
+					requestMenuCallback = null;
+				}
+			};
+    	} else {
+    		createEditExpenseMenuAux();
+    	}
+    }
+    
+    private void createEditExpenseMenuAux() {
     	actionBarMenu.clear();
     	
         //Used to put dark icons on light action bar
@@ -686,6 +734,9 @@ public class MainActivity extends SherlockFragmentActivity {
 				getResources().getString(R.string.add_new_expense_correctly),
 				Toast.LENGTH_LONG
 				).show();
+
+		updateRightDrawer();
+
 		return true;
     }
     
@@ -737,12 +788,11 @@ public class MainActivity extends SherlockFragmentActivity {
 				Toast.LENGTH_LONG
 				).show();
 
-		// Change the view of the right panel
-		if (expenseListTotal.isEmpty()) {
-			// Show the no Expense Found layout
-			noExpenseFoundRelativeLayout.setVisibility(View.VISIBLE);
-			expenseFoundScrollLayout.setVisibility(View.GONE);
-		}
+		Log.v(LOG_TAG, "After removing, the number total of expenses is " + expenseListTotal.getTotalExpenses());
+		// After removing the content position must be restarted
+		contentPositionSelected = -1;
+		updateRightDrawer();
+
 		return true;
     }
     
@@ -800,6 +850,8 @@ public class MainActivity extends SherlockFragmentActivity {
 				getResources().getString(R.string.update_expense_correctly),
 				Toast.LENGTH_LONG
 				).show();
+
+		updateRightDrawer();
     	return true;
     }
 }
