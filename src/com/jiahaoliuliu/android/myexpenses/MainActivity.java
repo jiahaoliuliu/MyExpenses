@@ -12,6 +12,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.Window;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 import com.jiahaoliuliu.android.myexpenses.util.Callback;
@@ -33,6 +34,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -52,7 +54,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
 import android.support.v4.view.GravityCompat;
 
 public class MainActivity extends SherlockFragmentActivity {
@@ -78,6 +79,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	private DrawerLayout mDrawerLayout;
 	private LinearLayout mLeftLinearDrawer;
 	private LinearLayout mRightLinearDrawer;
+	private RelativeLayout totalExpensesRelativeLayout;
 	private RelativeLayout noExpenseFoundRelativeLayout;
 	private ScrollView expenseFoundScrollLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -141,6 +143,9 @@ public class MainActivity extends SherlockFragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		setContentView(R.layout.drawer_main);
 
 		context = this;
@@ -163,6 +168,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		mDrawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
 		mLeftLinearDrawer = (LinearLayout)findViewById(R.id.leftLinearDrawer);
 		mRightLinearDrawer = (LinearLayout)findViewById(R.id.rightLinearDrawer);
+		totalExpensesRelativeLayout = (RelativeLayout)findViewById(R.id.totalExpensesRelativeLayout);
 		noExpenseFoundRelativeLayout = (RelativeLayout)findViewById(R.id.noExpenseFoundRelativeLayout);
 		expenseFoundScrollLayout = (ScrollView)findViewById(R.id.expenseScrollView);
 
@@ -171,10 +177,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		expenseListView = (ListView)findViewById(R.id.contentListView);
 		RelativeLayout emptyView = (RelativeLayout)findViewById(R.id.emptyView);
 		expenseListView.setEmptyView(emptyView);
-		
-		View listHeaderView = getLayoutInflater().inflate(R.layout.list_header_layout, null);
-		totalExpenseTV = (TextView)listHeaderView.findViewById(R.id.totalExpenseQuantityTextView);
-		expenseListView.addHeaderView(listHeaderView, null, false);
+
+		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 
 		//  Left Drawer
 		addNewExpenseEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseEditText);
@@ -200,7 +204,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Create the variables
 		expenseDBAdapter = new ExpenseDBAdapter(context);
 		expenseListTotal = expenseDBAdapter.getAllExpenses();
-		calendar = Calendar.getInstance();
 
 		// Enable ActionBar app icon to behave as action to toggle nav drawer
 		getSupportActionBar().setHomeButtonEnabled(true);
@@ -266,7 +269,11 @@ public class MainActivity extends SherlockFragmentActivity {
 		// Draw the layout
 		showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
-		totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		if (expenseListTotal.isEmpty()) {
+			totalExpensesRelativeLayout.setVisibility(View.GONE);
+		} else {
+			totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		}
 		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseListTotal);
 		expenseListView.setAdapter(expenseListAdapter);
 
@@ -317,7 +324,8 @@ public class MainActivity extends SherlockFragmentActivity {
 					long id) {
 				// Save the variable
 				// The position starts from 1, and the list starts from 0
-				contentPositionSelected = position-1;
+				Log.v(LOG_TAG, "The selected position is " + position);
+				contentPositionSelected = position;
 				updateRightDrawer();
 				// Open right drawer
 				if (mDrawerLayout.isDrawerOpen(mLeftLinearDrawer)) {
@@ -342,7 +350,8 @@ public class MainActivity extends SherlockFragmentActivity {
 		} else {
 			noExpenseFoundRelativeLayout.setVisibility(View.GONE);
 			expenseFoundScrollLayout.setVisibility(View.VISIBLE);
-			// If the user has selected any position
+			// If the user has selected any position, us it
+			// otherwise use the last position
 			if (contentPositionSelected < 0) {
 				contentPositionSelected = expenseListTotal.getTotalExpenses() - 1;
 			}
@@ -350,15 +359,19 @@ public class MainActivity extends SherlockFragmentActivity {
 			Log.v(LOG_TAG, "Getting the expense of the position " + contentPositionSelected);
 			// Clone the expense to be edited
 			expenseToBeEdited = expenseListTotal.getExpense(contentPositionSelected);
+			Log.d(LOG_TAG, "Expense to be shown: \n" + expenseToBeEdited.toString());
 			// Date
 			Date dateToBeEdited = expenseToBeEdited.getDate();
+			calendar = Calendar.getInstance();
 			calendar.setTime(dateToBeEdited);
-	
+			Log.d(LOG_TAG, "Hours in the calendar: " + calendar.get(Calendar.HOUR_OF_DAY));
+			Log.d(LOG_TAG, "Minutes in the calendar: " + calendar.get(Calendar.MINUTE));
+			
 			dateTitleButton.setOnClickListener(rightDrawerOnClickListener);
 			dateButton.setOnClickListener(rightDrawerOnClickListener);
 			dateButton.setText(dateFormatter.format(dateToBeEdited));
 			// Always shows the date picker and hide the time picker
-			datePicker.setVisibility(View.VISIBLE);
+			//datePicker.setVisibility(View.VISIBLE);
 			datePicker.init(calendar.get(Calendar.YEAR),
 					calendar.get(Calendar.MONTH),
 					calendar.get(Calendar.DAY_OF_MONTH), new OnDateChangedListener() {
@@ -379,16 +392,15 @@ public class MainActivity extends SherlockFragmentActivity {
 			// Time
 			timeTitleButton.setOnClickListener(rightDrawerOnClickListener);
 			timeButton.setOnClickListener(rightDrawerOnClickListener);
+			Log.d(LOG_TAG, "Time to be displayed in the button: " + timeFormatter.format(dateToBeEdited));
 			timeButton.setText(timeFormatter.format(dateToBeEdited));
 			// Always hide the time picker
-			timePicker.setVisibility(View.GONE);
+			//timePicker.setVisibility(View.GONE);
 			timePicker.setIs24HourView(true);
-			timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
-			timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 			timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
-				
 				@Override
 				public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+					Log.v(LOG_TAG, "The time has been changed to: " + hourOfDay + ":" + minute);
 					timeButton.setText(
 							new StringBuilder()
 								.append(pad(hourOfDay)).append(":")
@@ -398,6 +410,10 @@ public class MainActivity extends SherlockFragmentActivity {
 					calendar.set(Calendar.MINUTE, minute);
 				}
 			});
+			timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+			timePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
+			timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
+			timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
 			
 			// Quantity.
 			quantityET.setText(String.valueOf(expenseToBeEdited.getQuantity()));
@@ -730,8 +746,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
 		}
 
-		// 3. Total
-		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List Adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct Message
@@ -743,6 +757,12 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		updateRightDrawer();
 
+		// 3. Total
+		totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		// Make it visible if it was not.
+		if (totalExpensesRelativeLayout.getVisibility() == View.GONE) {
+			totalExpensesRelativeLayout.setVisibility(View.VISIBLE);
+		}
 		return true;
     }
     
@@ -783,8 +803,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
 		}
 
-		// 3. Total
-		totalExpenseTV.setText(expenseListTotal.getTotalSum());
 		// 4. List adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct message
@@ -797,6 +815,13 @@ public class MainActivity extends SherlockFragmentActivity {
 		Log.v(LOG_TAG, "After removing, the number total of expenses is " + expenseListTotal.getTotalExpenses());
 		updateRightDrawer();
 
+		// Update the total row
+		// 3. Total
+		if (expenseListTotal.isEmpty()) {
+			totalExpensesRelativeLayout.setVisibility(View.GONE);
+		} else {
+			totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		}
 		return true;
     }
     

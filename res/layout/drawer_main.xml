@@ -6,7 +6,7 @@
 	android:layout_height="match_parent"
 	>
 	
-	<FrameLayout 
+	<LinearLayout 
 		android:id="@+id/content_frame"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
@@ -14,6 +14,39 @@
 		android:background="@color/white"
 		>
 
+	    <RelativeLayout
+	        android:id="@+id/totalExpensesRelativeLayout"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:paddingLeft="@dimen/activity_horizontal_margin"
+		    android:paddingRight="@dimen/activity_horizontal_margin"
+		    android:background="@color/blue_deep"
+		    >
+		
+		    <TextView
+		        android:id="@+id/totalExpenseTextView"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentLeft="true"
+		        android:layout_centerVertical="true"
+		        android:text="@string/total_expense"
+		        android:layout_alignParentTop="true"
+		        android:textColor="@color/white"
+		        android:textSize="@dimen/header_text_size"
+		        />
+		
+		    <TextView
+		        android:id="@+id/totalExpenseQuantityTextView"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_alignParentRight="true"
+		        android:layout_centerVertical="true"
+		        android:layout_alignTop="@+id/totalExpenseTextView"
+		        android:textColor="@color/white"
+		        android:textSize="@dimen/header_text_size"
+		        />
+		</RelativeLayout>
+	    
 	    <ListView
 	    	android:id="@+id/contentListView"
 	    	android:layout_width="match_parent"
@@ -40,7 +73,7 @@
 		        android:textColor="@color/white"
 		        />
         </RelativeLayout>
-	</FrameLayout>
+	</LinearLayout>
 
 	<!-- Left drawer -->
 	<LinearLayout
@@ -82,11 +115,14 @@
 	    	
 	    <Button
 	        android:id="@+id/addNewExpenseButton"
+	        android:paddingLeft="3dp"
+	        android:paddingRight="3dp"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="@string/add_new_expense_button"
-	        android:textColor="@color/black"
             android:textSize="@dimen/drawer_text_size"
+            android:background="@drawable/add_expense_button_background"
+            android:textColor="@color/white"
 	        />
 	
         <CheckBox
