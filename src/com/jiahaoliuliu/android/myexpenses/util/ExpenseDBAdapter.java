@@ -25,7 +25,7 @@ public class ExpenseDBAdapter {
 	
 	private static final String DATABASE_NAME = "Expenses";
 	
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 
 	private static final String DATABASE_TABLE = "expenses";
 	
@@ -203,8 +203,34 @@ public class ExpenseDBAdapter {
 			Log.w(LOG_TAG, "Upgrading database from version " + 
 				  oldVersion + " to " + newVersion + " , which will destroy all old data");
 			
+			// Get all the content of the old database
+			Cursor mCursor = 
+					database.query(DATABASE_TABLE,
+							   new String[] {KEY_ROW_ID,
+											 KEY_DATE_ID,
+											 KEY_COMMENT_ID,
+											 KEY_QUANTITY
+			                 				},
+								    null,
+					                null,
+					                null,
+					                null,
+					                null);
+			ExpenseListTotal expenseListTotal = getAllExpensesFromCursor(mCursor);
+			mCursor.close();
+			
+			Log.v(LOG_TAG, "Get the content of the database on Upgrade. \n" + 
+					expenseListTotal.toString()
+					);
+			// TODO: Change the values of the old database
+			
+			// Drop the old database
 			database.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE);
+			
+			// Creates the new database
 			onCreate(database);
+
+			//Insert the old values to the new database.
 		}
 	}
 
