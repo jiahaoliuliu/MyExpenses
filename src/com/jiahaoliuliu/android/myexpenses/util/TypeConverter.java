@@ -1,5 +1,6 @@
 package com.jiahaoliuliu.android.myexpenses.util;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 public class TypeConverter {
@@ -19,5 +20,16 @@ public class TypeConverter {
 		NumberFormat format = NumberFormat.getCurrencyInstance();
 		double quantityDouble = param/100.00;
 		return String.valueOf(format.format(quantityDouble));
+	}
+	
+	public static double intToDoubleConverter(int intNumber) {
+		return intNumber/100.00;
+	}
+	
+	// Set the number of decimals in the editText
+	// The default quantity (double) to shown when the user has removed the quantity
+	public static String quantityToBeShownConverter(double doubleNumber) {
+		DecimalFormat dec = new DecimalFormat("0.00");
+		return dec.format(doubleNumber).replace(",", ".");
 	}
 }

@@ -136,9 +136,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	// Database
 	private ExpenseDBAdapter expenseDBAdapter;
 
-	// Set the number of decimals in the editText
-	//private NumberFormat format = NumberFormat.getCurrencyInstance();
-	public DecimalFormat dec = new DecimalFormat("0.00");
+	// in the right drawer.
+	private static final double DEFAULT_QUANTITY_EDITING = 0.00;
 	// The locale is set as us by default
 	private SimpleDateFormat dateFormatter;
 	private SimpleDateFormat timeFormatter;
@@ -417,7 +416,11 @@ public class MainActivity extends SherlockFragmentActivity {
 			timePicker.setCurrentHour(calendar.get(Calendar.HOUR_OF_DAY));
 			
 			// Quantity.
-			quantityET.setText(String.valueOf(expenseToBeEdited.getQuantity()));
+			quantityET.setText(
+					TypeConverter.quantityToBeShownConverter(
+						TypeConverter.intToDoubleConverter(expenseToBeEdited.getQuantity())
+							)
+						);
 	
 			//Format the quantity after user editing
 			quantityET.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -425,14 +428,15 @@ public class MainActivity extends SherlockFragmentActivity {
 				@Override
 				public void onFocusChange(View v, boolean hasFocus) {
 					if (!hasFocus) {
-						String quantityStringFormatted = "0.00";
+						String quantityStringFormatted = TypeConverter.quantityToBeShownConverter(DEFAULT_QUANTITY_EDITING);
 						String quantityString = quantityET.getText().toString();
 						if (quantityString != null && !quantityString.equals("")) {
 							quantityStringFormatted =
-									dec.format(
+									TypeConverter.quantityToBeShownConverter(
 										Double.valueOf(
 												quantityET.getText().toString()
-												)).replace(",", ".");
+												)
+										);
 						}
 	
 						quantityET.setText(quantityStringFormatted);
@@ -624,7 +628,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		Log.v(LOG_TAG, "Adding new quantity: " + quantityString);
 		// Format the quantity.
-		String quantityStringFormatted = dec.format(Double.valueOf(quantityString)).replace(",", ".");
+		String quantityStringFormatted = TypeConverter.quantityToBeShownConverter(Double.valueOf(quantityString));
 		
 		Log.v (LOG_TAG, "Quantity after format: " + quantityStringFormatted);
 		NewExpense expense = new NewExpense();
@@ -860,8 +864,6 @@ public class MainActivity extends SherlockFragmentActivity {
 			return false;
     	}
     	
-    	// TODO: Uncomment this
-    	/*
     	// 2. Database
     	if (!expenseDBAdapter.updateExpense(expenseEdited)) {
     		Log.e(LOG_TAG, "Error updating the expense to the database");
@@ -871,7 +873,8 @@ public class MainActivity extends SherlockFragmentActivity {
     				Toast.LENGTH_LONG
     				).show();
     		return false;
-    	}*/
+    	}
+
 		// 3. Total
 		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
 		// 4. List adapter
