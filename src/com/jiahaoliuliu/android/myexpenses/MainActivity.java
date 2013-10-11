@@ -535,7 +535,7 @@ public class MainActivity extends SherlockFragmentActivity {
     	actionBarMenu.add(Menu.NONE, MENU_REMOVE_BUTTON_ID, Menu
         		.NONE, getResources().getString(R.string.action_bar_remove))
         	.setIcon(R.drawable.ic_menu_remove)
-        	.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
+        	.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT);
 
     	actionBarMenu.add(Menu.NONE, MENU_ITEM_RIGHT_LIST_ID, Menu
         		.NONE, context.getResources().getString(R.string.action_bar_name_edit))
