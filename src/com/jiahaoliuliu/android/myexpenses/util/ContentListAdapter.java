@@ -24,6 +24,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 	private SimpleDateFormat dateFormatter;
 	private SimpleDateFormat hourFormtter;
 	private LayoutInflater inflater;
+	private Locale locale;
 
 	public ContentListAdapter(Context context, int resource, ExpenseListTotal expenseListTotal) {
 		super(context, resource);
@@ -34,6 +35,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		dateFormatter = new SimpleDateFormat("dd MMMM yyyy", currentLocale);
 		hourFormtter = new SimpleDateFormat("HH:mm", currentLocale);
 		inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		locale = context.getResources().getConfiguration().locale;
 	}
 	
 	@Override
@@ -60,7 +62,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 			expenseDateTV.setText(dateFormatter.format(expenseDate));
 			
 			TextView dailyTotalTV = (TextView)convertView.findViewById(R.id.dailyTotal);
-			dailyTotalTV.setText(TypeConverter.intToCurrency(expenseListTotal.getDailyTotal(expenseDate)));
+			dailyTotalTV.setText(TypeConverter.intToCurrency(expenseListTotal.getDailyTotal(expenseDate), locale));
 		} else {
 			RelativeLayout rowHeaderLayout = (RelativeLayout)convertView.findViewById(R.id.expenseHeaderLayout);
 			rowHeaderLayout.setVisibility(View.GONE);
@@ -72,7 +74,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		expenseCommentTV.setText(expense.getComment());
 
 		TextView expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
-		expenseQuantityTV.setText(expense.getQuantityString());
+		expenseQuantityTV.setText(TypeConverter.intToCurrency(expense.getQuantity(), locale));
 
 		return convertView;
 	}

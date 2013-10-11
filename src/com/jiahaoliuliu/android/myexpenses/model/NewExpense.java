@@ -1,6 +1,5 @@
 package com.jiahaoliuliu.android.myexpenses.model;
 
-import java.text.NumberFormat;
 import java.util.Date;
 
 import com.jiahaoliuliu.android.myexpenses.util.TypeConverter;
@@ -64,10 +63,6 @@ public class NewExpense implements Cloneable {
 
 	public int getQuantity() {
 		return quantity;
-	}
-
-	public String getQuantityString() {
-		return TypeConverter.intToCurrency(this.quantity);
 	}
 
 	public void setQuantity(int quantity) {

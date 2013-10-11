@@ -93,6 +93,7 @@ public class MainActivity extends SherlockFragmentActivity {
 
 	private Context context;
 	private Preferences preferences;
+	private Locale locale;
 	
 	private CharSequence mTitle;
 	private CharSequence mLeftDrawerTitle;
@@ -151,18 +152,17 @@ public class MainActivity extends SherlockFragmentActivity {
 		setContentView(R.layout.drawer_main);
 
 		context = this;
+		preferences = new Preferences(context);
+		locale = getResources().getConfiguration().locale;
 
 		Locale currentLocale = getResources().getConfiguration().locale;
 		dateFormatter = new SimpleDateFormat("dd MMM yyyy,EEE", currentLocale);
 		timeFormatter = new SimpleDateFormat("HH:mm", currentLocale);
-		// Lock the screen orientation
-		this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 		// Get the title
 		mTitle = getTitle();
 		mLeftDrawerTitle = getResources().getString(R.string.add_new_expense_title);
 		mRightDrawerTitle = getResources().getString(R.string.edit_expense_title);
-		preferences = new Preferences(context);
 		imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 
 		// Link the content
@@ -294,7 +294,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (expenseListTotal.isEmpty()) {
 			totalExpensesRelativeLayout.setVisibility(View.GONE);
 		} else {
-			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
+			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum(), locale));
 		}
 		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseListTotal);
 		expenseListView.setAdapter(expenseListAdapter);
@@ -786,7 +786,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		updateRightDrawer();
 
 		// 3. Total
-		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
+		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum(), locale));
 		// Make it visible if it was not.
 		if (totalExpensesRelativeLayout.getVisibility() == View.GONE) {
 			totalExpensesRelativeLayout.setVisibility(View.VISIBLE);
@@ -848,7 +848,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (expenseListTotal.isEmpty()) {
 			totalExpensesRelativeLayout.setVisibility(View.GONE);
 		} else {
-			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
+			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum(), locale));
 		}
 		return true;
     }
@@ -899,7 +899,7 @@ public class MainActivity extends SherlockFragmentActivity {
     	}
 
 		// 3. Total
-		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
+		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum(), locale));
 		// 4. List adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct message

@@ -2,6 +2,7 @@ package com.jiahaoliuliu.android.myexpenses.util;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 public class TypeConverter {
 
@@ -15,9 +16,9 @@ public class TypeConverter {
 		return (int)Math.round(quantityDouble100);
 	}
 
-	public static String intToCurrency(int param) {
+	public static String intToCurrency(int param, Locale locale) {
 		// Set the number of decimals in the editText
-		NumberFormat format = NumberFormat.getCurrencyInstance();
+		NumberFormat format = NumberFormat.getCurrencyInstance(locale);
 		double quantityDouble = param/100.00;
 		return String.valueOf(format.format(quantityDouble));
 	}
