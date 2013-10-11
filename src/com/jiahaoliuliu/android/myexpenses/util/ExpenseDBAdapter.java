@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 import com.jiahaoliuliu.android.myexpenses.model.NewExpense;
 import com.jiahaoliuliu.android.myexpenses.model.OldExpense;
@@ -332,6 +331,8 @@ public class ExpenseDBAdapter {
 		return expenseListTotal;
 	}
 
+	//==================================================== For Database upgrade from v4 =================================
+	// Changes: From v5, the quantity is integer
 	// For the old database to upgrade it
 	//Return an expense. If there is any error, return null
 	private OldExpense getOldExpenseFromCursor (Cursor mCursor, int position) {

@@ -13,8 +13,8 @@ import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.Window;
-import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
+import com.jiahaoliuliu.android.myexpenses.model.NewExpense;
 import com.jiahaoliuliu.android.myexpenses.util.Callback;
 import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
@@ -97,8 +97,8 @@ public class MainActivity extends SherlockFragmentActivity {
 	private CharSequence mRightDrawerTitle;
 	private boolean showAddNewExpenseAtBeginning;
 
-	private Expense expenseToBeEdited;
-	private Expense expenseEdited;
+	private NewExpense expenseToBeEdited;
+	private NewExpense expenseEdited;
 	private Calendar calendar;
 	private AlertDialog removeExpenseAlertDialog;
 
@@ -626,7 +626,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		String quantityStringFormatted = dec.format(Double.valueOf(quantityString)).replace(",", ".");
 		
 		Log.v (LOG_TAG, "Quantity after format: " + quantityStringFormatted);
-		Expense expense = new Expense();
+		NewExpense expense = new NewExpense();
 		expense.setDate(new Date());
 		expense.setComment(addNewExpenseCommentEditText.getText().toString());
 		expense.setQuantity(Double.valueOf(quantityStringFormatted));
@@ -707,7 +707,7 @@ public class MainActivity extends SherlockFragmentActivity {
     }
     
     // Generic methods to modify the expense list
-    private boolean addExpenseToList(Expense newExpense) {
+    private boolean addExpenseToList(NewExpense newExpense) {
     	if (newExpense == null) {
     		Log.e(LOG_TAG, "Error adding a new expense. It is null");
     		Toast.makeText(
@@ -767,7 +767,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		return true;
     }
     
-    private boolean removeExpenseFromList(Expense expense) {
+    private boolean removeExpenseFromList(NewExpense expense) {
     	if (expense == null) {
     		Log.e(LOG_TAG, "Error removing the expense. It is null");
     		Toast.makeText(
@@ -826,7 +826,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		return true;
     }
     
-    private boolean updateExpense(Expense expenseEdited) {
+    private boolean updateExpense(NewExpense expenseEdited) {
     	if (expenseEdited == null) {
     		Log.e(LOG_TAG, "Error Editing the expense. It is null");
     		Toast.makeText(

@@ -76,6 +76,10 @@ public class NewExpense implements Cloneable {
 		this.quantity = quantityConverter(quantityDouble);
 	}
 
+	public void setQuantity(Double quantityDouble) {
+		this.quantity = quantityConverter(quantityDouble);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

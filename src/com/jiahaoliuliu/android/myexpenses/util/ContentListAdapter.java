@@ -18,8 +18,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.jiahaoliuliu.android.myexpenses.R;
-import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
+import com.jiahaoliuliu.android.myexpenses.model.NewExpense;
 
 public class ContentListAdapter extends ArrayAdapter<String> {
 	
@@ -51,7 +51,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		convertView = inflater.inflate(R.layout.date_row_layout, parent, false);
-		Expense expense = expenseListTotal.getExpense(position);
+		NewExpense expense = expenseListTotal.getExpense(position);
 		Date expenseDate = expense.getDate();
 		
 		if (expenseListTotal.isHeader(expense)) {
