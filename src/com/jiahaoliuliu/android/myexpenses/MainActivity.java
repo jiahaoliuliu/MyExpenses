@@ -268,6 +268,28 @@ public class MainActivity extends SherlockFragmentActivity {
 
 		// Draw the layout
 		showAddNewExpenseAtBeginning = preferences.getBoolean(BooleanId.SHOWN_ADD_NEW_EXPENSE_AT_BEGINNING);
+		
+		// Format the quantity after the edition
+		addNewExpenseEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (!hasFocus) {
+					String quantityString = addNewExpenseEditText.getText().toString();
+					if (quantityString != null && !quantityString.equals("")) {
+						String quantityStringFormatted =
+								TypeConverter.quantityToBeShownConverter(
+									Double.valueOf(
+											addNewExpenseEditText.getText().toString()
+											)
+									);
+						addNewExpenseEditText.setText(quantityStringFormatted);
+					}
+				}
+			}
+		});
+
+		
 		addNewExpenseCheckBox.setChecked(showAddNewExpenseAtBeginning);
 		if (expenseListTotal.isEmpty()) {
 			totalExpensesRelativeLayout.setVisibility(View.GONE);
@@ -295,6 +317,7 @@ public class MainActivity extends SherlockFragmentActivity {
 			}
 		});
 
+		// Used for the "next" button in the soft keyboard
 		addNewExpenseEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
