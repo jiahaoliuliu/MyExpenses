@@ -722,7 +722,6 @@ public class MainActivity extends SherlockFragmentActivity {
 
     	Log.v(LOG_TAG, "Adding new expense to the list");
     	Log.v(LOG_TAG, "\t" + newExpense.toString());
-    	/* TODO: Uncomment this
 		// 1. Database
     	// The first one must be the database in order to create the correct id of the expense
 		if(!expenseDBAdapter.insertNewExpense(newExpense)) {
@@ -733,7 +732,7 @@ public class MainActivity extends SherlockFragmentActivity {
     				Toast.LENGTH_LONG
     				).show();
 			return false;
-		}*/
+		}
 		
     	// 2. Expense list
 		// Once the expense id has been created, then it can be added to the expense list
