@@ -16,7 +16,7 @@ public class ExpenseList implements Cloneable {
 	private static final String LOG_TAG = ExpenseList.class.getSimpleName();
 
 	// The sub total sum per day
-	private double subTotalSum;
+	private int subTotalSum;
 
 	// the list of sorted expenses
 	private ArrayList<NewExpense> expenseArray;
@@ -30,7 +30,7 @@ public class ExpenseList implements Cloneable {
 
 	public ExpenseList() {
 		super();
-		subTotalSum = 0.0;
+		subTotalSum = 0;
 		expenseArray = new ArrayList<NewExpense>();
 		expenseMap = new HashMap<Integer, NewExpense>();
 		comparator = new ExpenseComparator();
@@ -169,11 +169,11 @@ public class ExpenseList implements Cloneable {
 		return expenseArray.get(position);
 	}
 
-	public double getSubTotalSum() {
+	public int getSubTotalSum() {
 		return subTotalSum;
 	}
 
-	public void setSubTotalSum(double subTotalSum) {
+	public void setSubTotalSum(int subTotalSum) {
 		this.subTotalSum = subTotalSum;
 	}
 
@@ -193,6 +193,7 @@ public class ExpenseList implements Cloneable {
 		this.expenseMap = expenseMap;
 	}
 
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -201,9 +202,7 @@ public class ExpenseList implements Cloneable {
 				+ ((expenseArray == null) ? 0 : expenseArray.hashCode());
 		result = prime * result
 				+ ((expenseMap == null) ? 0 : expenseMap.hashCode());
-		long temp;
-		temp = Double.doubleToLongBits(subTotalSum);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + subTotalSum;
 		return result;
 	}
 
@@ -226,8 +225,7 @@ public class ExpenseList implements Cloneable {
 				return false;
 		} else if (!expenseMap.equals(other.expenseMap))
 			return false;
-		if (Double.doubleToLongBits(subTotalSum) != Double
-				.doubleToLongBits(other.subTotalSum))
+		if (subTotalSum != other.subTotalSum)
 			return false;
 		return true;
 	}

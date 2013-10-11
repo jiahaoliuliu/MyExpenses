@@ -1,6 +1,7 @@
 package com.jiahaoliuliu.android.myexpenses;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
+import com.jiahaoliuliu.android.myexpenses.util.TypeConverter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences.BooleanId;
 
 import android.os.Bundle;
@@ -135,6 +137,7 @@ public class MainActivity extends SherlockFragmentActivity {
 	private ExpenseDBAdapter expenseDBAdapter;
 
 	// Set the number of decimals in the editText
+	//private NumberFormat format = NumberFormat.getCurrencyInstance();
 	public DecimalFormat dec = new DecimalFormat("0.00");
 	// The locale is set as us by default
 	private SimpleDateFormat dateFormatter;
@@ -177,8 +180,6 @@ public class MainActivity extends SherlockFragmentActivity {
 		expenseListView = (ListView)findViewById(R.id.contentListView);
 		RelativeLayout emptyView = (RelativeLayout)findViewById(R.id.emptyView);
 		expenseListView.setEmptyView(emptyView);
-
-		totalExpenseTV = (TextView)findViewById(R.id.totalExpenseQuantityTextView);
 
 		//  Left Drawer
 		addNewExpenseEditText = (EditText)mLeftLinearDrawer.findViewById(R.id.addNewExpenseEditText);
@@ -272,7 +273,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (expenseListTotal.isEmpty()) {
 			totalExpensesRelativeLayout.setVisibility(View.GONE);
 		} else {
-			totalExpenseTV.setText(expenseListTotal.getTotalSum());
+			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
 		}
 		expenseListAdapter = new ContentListAdapter(context, R.layout.date_row_layout, expenseListTotal);
 		expenseListView.setAdapter(expenseListAdapter);
@@ -428,7 +429,7 @@ public class MainActivity extends SherlockFragmentActivity {
 						String quantityString = quantityET.getText().toString();
 						if (quantityString != null && !quantityString.equals("")) {
 							quantityStringFormatted =
-								dec.format(
+									dec.format(
 										Double.valueOf(
 												quantityET.getText().toString()
 												)).replace(",", ".");
@@ -759,7 +760,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		updateRightDrawer();
 
 		// 3. Total
-		totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
 		// Make it visible if it was not.
 		if (totalExpensesRelativeLayout.getVisibility() == View.GONE) {
 			totalExpensesRelativeLayout.setVisibility(View.VISIBLE);
@@ -821,7 +822,7 @@ public class MainActivity extends SherlockFragmentActivity {
 		if (expenseListTotal.isEmpty()) {
 			totalExpensesRelativeLayout.setVisibility(View.GONE);
 		} else {
-			totalExpenseTV.setText(expenseListTotal.getTotalSum());
+			totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
 		}
 		return true;
     }
@@ -873,7 +874,7 @@ public class MainActivity extends SherlockFragmentActivity {
     		return false;
     	}*/
 		// 3. Total
-		totalExpenseTV.setText(expenseListTotal.getTotalSum());
+		totalExpenseTV.setText(TypeConverter.intToCurrency(expenseListTotal.getTotalSum()));
 		// 4. List adapter
 		expenseListAdapter.notifyDataSetChanged();
 		// 5. Correct message

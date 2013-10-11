@@ -1,6 +1,9 @@
 package com.jiahaoliuliu.android.myexpenses.model;
 
+import java.text.NumberFormat;
 import java.util.Date;
+
+import com.jiahaoliuliu.android.myexpenses.util.TypeConverter;
 
 // This class is used temporally to upgrade the database.
 
@@ -32,12 +35,7 @@ public class NewExpense implements Cloneable {
 		this._id = oldExpense.get_id();
 		this.date = oldExpense.getDate();
 		this.comment = oldExpense.getComment();
-		this.quantity = quantityConverter(oldExpense.getQuantity());
-	}
-
-	private int quantityConverter(double quantityDouble) {
-		double quantityDouble100 = quantityDouble * 100;
-		return (int)Math.round(quantityDouble100);
+		this.quantity = TypeConverter.doubleToIntConverter(oldExpense.getQuantity());
 	}
 
 	public int get_id() {
@@ -68,16 +66,20 @@ public class NewExpense implements Cloneable {
 		return quantity;
 	}
 
+	public String getQuantityString() {
+		return TypeConverter.intToCurrency(this.quantity);
+	}
+
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
 	
 	public void setQuanitty(double quantityDouble) {
-		this.quantity = quantityConverter(quantityDouble);
+		this.quantity = TypeConverter.doubleToIntConverter(quantityDouble);
 	}
 
 	public void setQuantity(Double quantityDouble) {
-		this.quantity = quantityConverter(quantityDouble);
+		this.quantity = TypeConverter.doubleToIntConverter(quantityDouble);
 	}
 
 	@Override

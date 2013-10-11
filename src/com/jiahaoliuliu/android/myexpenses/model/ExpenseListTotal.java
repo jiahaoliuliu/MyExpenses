@@ -1,6 +1,5 @@
 package com.jiahaoliuliu.android.myexpenses.model;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,15 +13,14 @@ import com.jiahaoliuliu.android.myexpenses.MainActivity.OperationResult;
 public class ExpenseListTotal {
 
 	private static final String LOG_TAG = ExpenseListTotal.class.getSimpleName();
+	private static final int DEFAULT_DAILY_TOTAL = 0;
 
 	private final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-	// Set the number of decimals in the editText
-	public final DecimalFormat dec = new DecimalFormat("0.00");
 
 	// The total number of expenses
 	private int totalExpenses;
 	// 
-	private double totalSum;
+	private int totalSum;
 	
 	// The hashMap  of expenses per day, where the key is the date 
 	// formatted with year-month-day
@@ -40,7 +38,7 @@ public class ExpenseListTotal {
 	public ExpenseListTotal() {
 		super();
 		totalExpenses = 0;
-		totalSum = 0.0;
+		totalSum = 0;
 		expenses = new HashMap<String, ExpenseList>();
 		expensesKeysSorted = new ArrayList<Integer>();
 	}
@@ -216,19 +214,19 @@ public class ExpenseListTotal {
 		return totalExpenses == 0;
 	}
 	
-	public String getDailyTotal(Date date) {
+	public int getDailyTotal(Date date) {
 		if (date == null) {
 			Log.e(LOG_TAG, "Error getting the daily total. The date is null");
-			return (dec.format(0.0));
+			return (DEFAULT_DAILY_TOTAL);
 		}
 		
 		ExpenseList expenseList = expenses.get(formatter.format(date));
 		if (expenseList == null) {
 			Log.e(LOG_TAG, "Error getting the daily total. The expense list does not exist");
-			return (dec.format(0.0));
+			return (DEFAULT_DAILY_TOTAL);
 		}
 		
-		return dec.format(expenseList.getSubTotalSum());
+		return expenseList.getSubTotalSum();
 	}
 
 	public int getTotalExpenses() {
@@ -241,8 +239,8 @@ public class ExpenseListTotal {
 		this.totalExpenses = totalExpenses;
 	}*/
 
-	public String getTotalSum() {
-		return dec.format(totalSum);
+	public int getTotalSum() {
+		return totalSum;
 	}
 
 	// The total sum is dynamic generated and it cannot be set from outside
@@ -271,15 +269,12 @@ public class ExpenseListTotal {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dec == null) ? 0 : dec.hashCode());
 		result = prime * result
 				+ ((expenses == null) ? 0 : expenses.hashCode());
 		result = prime
 				* result
 				+ ((expensesKeysSorted == null) ? 0 : expensesKeysSorted
 						.hashCode());
-		result = prime * result
-				+ ((formatter == null) ? 0 : formatter.hashCode());
 		result = prime * result + totalExpenses;
 		result = prime * result + totalOperations;
 		long temp;
@@ -297,11 +292,6 @@ public class ExpenseListTotal {
 		if (getClass() != obj.getClass())
 			return false;
 		ExpenseListTotal other = (ExpenseListTotal) obj;
-		if (dec == null) {
-			if (other.dec != null)
-				return false;
-		} else if (!dec.equals(other.dec))
-			return false;
 		if (expenses == null) {
 			if (other.expenses != null)
 				return false;
@@ -311,11 +301,6 @@ public class ExpenseListTotal {
 			if (other.expensesKeysSorted != null)
 				return false;
 		} else if (!expensesKeysSorted.equals(other.expensesKeysSorted))
-			return false;
-		if (formatter == null) {
-			if (other.formatter != null)
-				return false;
-		} else if (!formatter.equals(other.formatter))
 			return false;
 		if (totalExpenses != other.totalExpenses)
 			return false;

@@ -1,19 +1,14 @@
 package com.jiahaoliuliu.android.myexpenses.util;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,8 +23,6 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 	private SimpleDateFormat dayOfWeekFormatter;
 	private SimpleDateFormat dateFormatter;
 	private SimpleDateFormat hourFormtter;
-	// Set the number of decimals in the editText
-	private DecimalFormat dec = new DecimalFormat("0.00");
 	private LayoutInflater inflater;
 
 	public ContentListAdapter(Context context, int resource, ExpenseListTotal expenseListTotal) {
@@ -67,7 +60,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 			expenseDateTV.setText(dateFormatter.format(expenseDate));
 			
 			TextView dailyTotalTV = (TextView)convertView.findViewById(R.id.dailyTotal);
-			dailyTotalTV.setText(expenseListTotal.getDailyTotal(expenseDate));
+			dailyTotalTV.setText(TypeConverter.intToCurrency(expenseListTotal.getDailyTotal(expenseDate)));
 		} else {
 			RelativeLayout rowHeaderLayout = (RelativeLayout)convertView.findViewById(R.id.expenseHeaderLayout);
 			rowHeaderLayout.setVisibility(View.GONE);
@@ -79,7 +72,7 @@ public class ContentListAdapter extends ArrayAdapter<String> {
 		expenseCommentTV.setText(expense.getComment());
 
 		TextView expenseQuantityTV = (TextView)convertView.findViewById(R.id.expenseQuantityTextView);
-		expenseQuantityTV.setText(String.valueOf(dec.format(expense.getQuantity()).replace(",", ".")));
+		expenseQuantityTV.setText(expense.getQuantityString());
 
 		return convertView;
 	}
