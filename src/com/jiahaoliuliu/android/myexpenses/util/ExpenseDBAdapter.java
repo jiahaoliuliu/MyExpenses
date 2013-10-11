@@ -318,14 +318,13 @@ public class ExpenseDBAdapter {
 		return result;
 	}
 
-	// TODO: Review the follow code
 	private ExpenseListTotal getAllExpensesFromCursor(Cursor mCursor) {
 		ExpenseListTotal expenseListTotal = new ExpenseListTotal();
 		
 		int count = mCursor.getCount();
 		for (int i = 0; i < count; i++) {
-			//Expense tempExpense = getExpenseFromCursor(mCursor, i);
-			//expenseListTotal.addExpense(tempExpense);
+			NewExpense tempExpense = getNewExpenseFromCursor(mCursor, i);
+			expenseListTotal.addExpense(tempExpense);
 		}
 		
 		return expenseListTotal;
