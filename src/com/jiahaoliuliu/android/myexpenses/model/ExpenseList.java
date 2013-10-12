@@ -77,13 +77,22 @@ public class ExpenseList implements Cloneable {
 		Log.v(LOG_TAG, "Removing the follow expense from the list: \n" +
 				expenseToBeRemoved.toString());
 
+		/*
 		if (subTotalSum < expenseToBeRemoved.getQuantity()) {
 			Log.e(LOG_TAG, "Error removing an expense. Its quantity " + expenseToBeRemoved.getQuantity() + 
 					" is bigger thant the subTotalSum " + subTotalSum);
+			// TODO: Do it.
 			return OperationResult.ERROR_QUANTITY_INCORRECT;
-		}
+		}*/
 
 		subTotalSum -= expenseToBeRemoved.getQuantity();
+		
+		if (subTotalSum < 0) {
+			Log.e(LOG_TAG, "Error removing an expense. Its quantity " + expenseToBeRemoved.getQuantity() + 
+					" is bigger thant the subTotalSum " + subTotalSum);
+			subTotalSum = 0;
+		}
+
 		NewExpense expenseRemoved = expenseMap.remove(expenseToBeRemoved.get_id());
 		if (!expenseToBeRemoved.equals(expenseRemoved)) {
 			Log.e(LOG_TAG, "Error removing the expense. The removed expense does not match with the expense to be removed " +

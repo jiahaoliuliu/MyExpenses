@@ -90,14 +90,21 @@ public class ExpenseListTotal {
 		Log.v(LOG_TAG, "Removing the follow expense from the list total: \n" +
 				expenseToBeRemoved.toString());
 
+		/*
 		if (totalSum < expenseToBeRemoved.getQuantity()) {
 			Log.e(LOG_TAG, "Error removing new expense. The total is less than expense");
 			// It needs a refresh
+			// TODO: Do refresh
 			return OperationResult.ERROR_QUANTITY_INCORRECT;
-		}
+		}*/
 
 		totalExpenses--;
 		totalSum -= expenseToBeRemoved.getQuantity();
+		if (totalSum < 0) {
+			totalSum = 0;
+			Log.e(LOG_TAG, "Error removing new expense. The total is less than expense");
+		}
+		
 
 		String key = formatter.format(expenseToBeRemoved.getDate());
 		ExpenseList expenseList = expenses.get(key);
@@ -115,6 +122,14 @@ public class ExpenseListTotal {
 		if (expenseList.size() == 0) {
 			expenses.remove(key);
 			expensesKeysSorted.remove(expensesKeysSorted.indexOf(Integer.valueOf(key)));
+		}
+
+		// Check if the hashMap of expenses is empty or not
+		if (expenses.isEmpty()) {
+			if (totalSum != 0) {
+				Log.e(LOG_TAG, "Error removing. The total list of the expenses is empty but the total sum is not 0");
+				totalSum = 0;
+			}
 		}
 
 		return periodicallyIntegrityCheck();
