@@ -19,11 +19,11 @@ public class ExpenseList implements Cloneable {
 	private int subTotalSum;
 
 	// the list of sorted expenses
-	private ArrayList<NewExpense> expenseArray;
+	private ArrayList<Expense> expenseArray;
 	
 	// The map of expenses where the key is the row id of the expense.
 	// Since the key is set by the database, it expects to be unique
-	private HashMap<Integer, NewExpense> expenseMap;
+	private HashMap<Integer, Expense> expenseMap;
 	
 	// The collection comparator
 	private ExpenseComparator comparator; 
@@ -31,12 +31,12 @@ public class ExpenseList implements Cloneable {
 	public ExpenseList() {
 		super();
 		subTotalSum = 0;
-		expenseArray = new ArrayList<NewExpense>();
-		expenseMap = new HashMap<Integer, NewExpense>();
+		expenseArray = new ArrayList<Expense>();
+		expenseMap = new HashMap<Integer, Expense>();
 		comparator = new ExpenseComparator();
 	}
 
-	public ExpenseList(int subTotalSum, ArrayList<NewExpense> expenseArray, HashMap<Integer, NewExpense> expenseMap, ExpenseComparator comparator) {
+	public ExpenseList(int subTotalSum, ArrayList<Expense> expenseArray, HashMap<Integer, Expense> expenseMap, ExpenseComparator comparator) {
 		super();
 		this.expenseArray = expenseArray;
 		this.subTotalSum = subTotalSum;
@@ -45,7 +45,7 @@ public class ExpenseList implements Cloneable {
 	}
 
 	// The data cannot be empty
-	public OperationResult addExpense(NewExpense expenseToBeAdded) {
+	public OperationResult addExpense(Expense expenseToBeAdded) {
 		if (expenseToBeAdded == null) {
 			Log.e(LOG_TAG, "Error adding new expense. It is empty");
 			return OperationResult.ERROR_DATA_EMPTY;
@@ -68,7 +68,7 @@ public class ExpenseList implements Cloneable {
 		return OperationResult.CORRECT;
 	}
 
-	public OperationResult removeExpense(NewExpense expenseToBeRemoved) {
+	public OperationResult removeExpense(Expense expenseToBeRemoved) {
 		if (expenseToBeRemoved == null) {
 			Log.e(LOG_TAG, "Error removing expense. It is empty");
 			return OperationResult.ERROR_DATA_EMPTY;
@@ -93,7 +93,7 @@ public class ExpenseList implements Cloneable {
 			subTotalSum = 0;
 		}
 
-		NewExpense expenseRemoved = expenseMap.remove(expenseToBeRemoved.get_id());
+		Expense expenseRemoved = expenseMap.remove(expenseToBeRemoved.get_id());
 		if (!expenseToBeRemoved.equals(expenseRemoved)) {
 			Log.e(LOG_TAG, "Error removing the expense. The removed expense does not match with the expense to be removed " +
 					"\nExpense to be removed: " + expenseToBeRemoved.toString() + 
@@ -122,8 +122,8 @@ public class ExpenseList implements Cloneable {
 			return false;
 		}
 
-		for (NewExpense expenseSavedInArray: expenseArray) {
-			NewExpense expenseSavedInMap = expenseMap.get(expenseSavedInArray.get_id());
+		for (Expense expenseSavedInArray: expenseArray) {
+			Expense expenseSavedInMap = expenseMap.get(expenseSavedInArray.get_id());
 			if (expenseSavedInMap == null) {
 				Log.e(LOG_TAG, "The expense with id " + expenseSavedInArray.get_id() + " does not exists in the map. \n" + expenseSavedInArray);
 				return false;
@@ -139,7 +139,7 @@ public class ExpenseList implements Cloneable {
 		return true;
 	}
 
-	public boolean isHeader(NewExpense expense) {
+	public boolean isHeader(Expense expense) {
 		if (expense == null) {
 			Log.e(LOG_TAG, "Error checking if an expense is a header. It is null");
 			return false;
@@ -163,13 +163,13 @@ public class ExpenseList implements Cloneable {
 	}
 
 	// Get expense
-	public NewExpense getExpenseById(int expenseId) {
+	public Expense getExpenseById(int expenseId) {
 		if (expenseMap == null) {
 			return null;
 		} else return expenseMap.get(expenseId);
 	}
 
-	public NewExpense getExpenseByPosition(int position) {
+	public Expense getExpenseByPosition(int position) {
 		if (position < 0 || position > expenseArray.size()-1) {
 			Log.e(LOG_TAG, "Error getting the expense by position. The position is not correct " + position);
 			return null;
@@ -186,19 +186,19 @@ public class ExpenseList implements Cloneable {
 		this.subTotalSum = subTotalSum;
 	}
 
-	public ArrayList<NewExpense> getExpenseArray() {
+	public ArrayList<Expense> getExpenseArray() {
 		return expenseArray;
 	}
 
-	public void setExpenseArray(ArrayList<NewExpense> expenseArray) {
+	public void setExpenseArray(ArrayList<Expense> expenseArray) {
 		this.expenseArray = expenseArray;
 	}
 
-	public HashMap<Integer, NewExpense> getExpenseMap() {
+	public HashMap<Integer, Expense> getExpenseMap() {
 		return expenseMap;
 	}
 
-	public void setExpenseMap(HashMap<Integer, NewExpense> expenseMap) {
+	public void setExpenseMap(HashMap<Integer, Expense> expenseMap) {
 		this.expenseMap = expenseMap;
 	}
 

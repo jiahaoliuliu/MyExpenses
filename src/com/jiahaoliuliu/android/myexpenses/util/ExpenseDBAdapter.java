@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
-import com.jiahaoliuliu.android.myexpenses.model.NewExpense;
+import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.model.OldExpense;
 
 import android.content.ContentValues;
@@ -66,7 +66,7 @@ public class ExpenseDBAdapter {
 	 * Register a new expense inside of the database.
 	 */
 	// TODO: Use Expense instead of NewExpense
-	public boolean insertNewExpense (NewExpense expense) {
+	public boolean insertNewExpense (Expense expense) {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
@@ -84,7 +84,7 @@ public class ExpenseDBAdapter {
 	 * @return        True if the expense has been updated
 	 *                False otherwise
 	 */
-	public boolean updateExpense (NewExpense newExpense) {
+	public boolean updateExpense (Expense newExpense) {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
@@ -124,12 +124,12 @@ public class ExpenseDBAdapter {
 	}
 	
 	//Return an Expense. If there is any error, return null
-	public NewExpense getExpnseByRowId (int row_id) throws SQLException  {
+	public Expense getExpnseByRowId (int row_id) throws SQLException  {
 		if (database == null || !database.isOpen()) {
 			openDatabase();
 		}
 
-		NewExpense result = null;
+		Expense result = null;
 
 		Cursor mCursor = 
 				database.query(DATABASE_TABLE,
@@ -229,9 +229,9 @@ public class ExpenseDBAdapter {
 						oldExpenseList.size()
 						);
 				
-				ArrayList<NewExpense> newExpenseList = new ArrayList<NewExpense>();
+				ArrayList<Expense> newExpenseList = new ArrayList<Expense>();
 				for (OldExpense oldExpense: oldExpenseList) {
-					NewExpense newExpenseTmp = new NewExpense(oldExpense);
+					Expense newExpenseTmp = new Expense(oldExpense);
 					Log.v(LOG_TAG, "OldExpense: \n" + oldExpense.toString());
 					Log.v(LOG_TAG, "NewExpense: \n" + newExpenseTmp.toString());
 					newExpenseList.add(newExpenseTmp);
@@ -245,7 +245,7 @@ public class ExpenseDBAdapter {
 				onCreate(database);
 
 				//Insert the old values to the new database.
-				for (NewExpense newExpense: newExpenseList) {
+				for (Expense newExpense: newExpenseList) {
 					ContentValues expenseValues = createExpenseValues(newExpense);
 					int rowId =  (int)database.insert(DATABASE_TABLE, null, expenseValues);
 					if (rowId < 0) {
@@ -260,7 +260,7 @@ public class ExpenseDBAdapter {
 	//Private methods
 	//Create a content values for the database based on a Expense
 	// All the values are checked.
-	private ContentValues createExpenseValues (NewExpense newExpense) {
+	private ContentValues createExpenseValues (Expense newExpense) {
 		
 		Log.i(LOG_TAG, "Creating the content values from a expense");
 		ContentValues expenseValues = new ContentValues();
@@ -282,8 +282,8 @@ public class ExpenseDBAdapter {
 	}
 
 	//Return an expense. If there is any error, return null
-	private NewExpense getNewExpenseFromCursor (Cursor mCursor, int position) {
-		NewExpense result = null;
+	private Expense getNewExpenseFromCursor (Cursor mCursor, int position) {
+		Expense result = null;
 		
 		// Get basic data
 		if (mCursor == null) {
@@ -312,7 +312,7 @@ public class ExpenseDBAdapter {
 			// Quantity
 			int quantity = mCursor.getInt(mCursor.getColumnIndex(KEY_QUANTITY));
 
-			result = new NewExpense(row_id, date, comment, quantity);
+			result = new Expense(row_id, date, comment, quantity);
 		}
 		
 		return result;
@@ -323,7 +323,7 @@ public class ExpenseDBAdapter {
 		
 		int count = mCursor.getCount();
 		for (int i = 0; i < count; i++) {
-			NewExpense tempExpense = getNewExpenseFromCursor(mCursor, i);
+			Expense tempExpense = getNewExpenseFromCursor(mCursor, i);
 			expenseListTotal.addExpense(tempExpense);
 		}
 		

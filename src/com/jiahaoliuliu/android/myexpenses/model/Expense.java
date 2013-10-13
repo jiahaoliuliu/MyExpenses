@@ -6,7 +6,7 @@ import com.jiahaoliuliu.android.myexpenses.util.TypeConverter;
 
 // This class is used temporally to upgrade the database.
 
-public class NewExpense implements Cloneable {
+public class Expense implements Cloneable {
 
 	// The row id in the database
 	private int _id = 0;
@@ -17,11 +17,11 @@ public class NewExpense implements Cloneable {
 	// The amount of expense
 	private int quantity;
 
-	public NewExpense() {
+	public Expense() {
 		super();
 	}
 
-	public NewExpense(int _id, Date date, String comment, int quantity) {
+	public Expense(int _id, Date date, String comment, int quantity) {
 		super();
 		this._id = _id;
 		this.date = date;
@@ -29,7 +29,7 @@ public class NewExpense implements Cloneable {
 		this.quantity = quantity;
 	}
 
-	public NewExpense(OldExpense oldExpense) {
+	public Expense(OldExpense oldExpense) {
 		super();
 		this._id = oldExpense.get_id();
 		this.date = oldExpense.getDate();
@@ -98,7 +98,7 @@ public class NewExpense implements Cloneable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NewExpense other = (NewExpense) obj;
+		Expense other = (Expense) obj;
 		if (_id != other._id)
 			return false;
 		if (comment == null) {
@@ -124,10 +124,10 @@ public class NewExpense implements Cloneable {
 	}
 
 	@Override
-	public NewExpense clone() {
-		NewExpense object = null;
+	public Expense clone() {
+		Expense object = null;
 		try {
-			object = (NewExpense)super.clone();
+			object = (Expense)super.clone();
 		} catch (CloneNotSupportedException ex) {
 			System.out.println("Clone not supported");
 		}

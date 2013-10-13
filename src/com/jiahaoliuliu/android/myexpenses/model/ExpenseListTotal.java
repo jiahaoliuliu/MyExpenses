@@ -52,7 +52,7 @@ public class ExpenseListTotal {
 	}
 
 	// Additional methods
-	public OperationResult addExpense(NewExpense expenseToBeAdded) {
+	public OperationResult addExpense(Expense expenseToBeAdded) {
 		if (expenseToBeAdded == null) {
 			Log.e(LOG_TAG, "Error adding new expense. It is empty");
 			return OperationResult.ERROR_DATA_EMPTY;
@@ -81,7 +81,7 @@ public class ExpenseListTotal {
 		return periodicallyIntegrityCheck();
 	}
 
-	public OperationResult removeExpense(NewExpense expenseToBeRemoved) {
+	public OperationResult removeExpense(Expense expenseToBeRemoved) {
 		if (expenseToBeRemoved == null) {
 			Log.e(LOG_TAG, "Error removing new expense. It is empty");
 			return OperationResult.ERROR_DATA_EMPTY;
@@ -136,7 +136,7 @@ public class ExpenseListTotal {
 	}
 	
 	// Update expense is remove the old expense and add the new expense
-	public OperationResult updateExpense(NewExpense oldExpense, NewExpense newExpense) {
+	public OperationResult updateExpense(Expense oldExpense, Expense newExpense) {
 		if (oldExpense == null || newExpense == null) {
 			Log.e(LOG_TAG, "Error Updating the expense. At least one of the data is empty");
 			return OperationResult.ERROR_DATA_EMPTY;
@@ -160,7 +160,7 @@ public class ExpenseListTotal {
 		}
 	}
 
-	public boolean isHeader(NewExpense expense) {
+	public boolean isHeader(Expense expense) {
 		if (expense == null) {
 			Log.e(LOG_TAG, "Error checking if an expense is header. It is null");
 			return false;
@@ -180,7 +180,7 @@ public class ExpenseListTotal {
 	}
 
 	// Get an expense by the position
-	public NewExpense getExpense(int position) {
+	public Expense getExpense(int position) {
 		if (position < 0 || position > totalExpenses) {
 			Log.e(LOG_TAG, "Error Getting the expense. The position is not correct " + position);
 			return null;
