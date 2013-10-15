@@ -1,24 +1,17 @@
 package com.jiahaoliuliu.android.myexpenses;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.Window;
 import com.jiahaoliuliu.android.myexpenses.model.ExpenseListTotal;
 import com.jiahaoliuliu.android.myexpenses.model.Expense;
 import com.jiahaoliuliu.android.myexpenses.util.Callback;
 import com.jiahaoliuliu.android.myexpenses.util.ContentListAdapter;
-import com.jiahaoliuliu.android.myexpenses.util.ExpenseComparator;
 import com.jiahaoliuliu.android.myexpenses.util.ExpenseDBAdapter;
 import com.jiahaoliuliu.android.myexpenses.util.Preferences;
 import com.jiahaoliuliu.android.myexpenses.util.TypeConverter;
@@ -29,7 +22,6 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -709,7 +701,6 @@ public class MainActivity extends SherlockFragmentActivity {
 
     private AlertDialog createRemoveAlertDialog() {
     	AlertDialog confirmRemovingDialog = new AlertDialog.Builder(MainActivity.this)
-		.setIconAttribute(android.R.attr.alertDialogIcon)
 		.setTitle(getResources().getString(R.string.expense_removing_dialog_title))
 		.setMessage(getResources().getString(R.string.expense_removing_dialog_message))
         .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
